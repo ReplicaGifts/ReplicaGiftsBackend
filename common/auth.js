@@ -34,10 +34,12 @@ const userAuth = function (req, res, next) {
 const adminAuth = function (req, res, next) {
     const token = req.header("Authorization");
 
+    console.log(token);
+
     if (!token) return res.status(401).json({ message: "Auth Error" });
 
     try {
-        const decoded = jwt.verify(token.split(' ')[1], process.env.SECRET_KEY);
+        const decoded = jwt.verify(token.split(' ')[1], "randomString");
 
         // Check if the user exists in the user collection
         Admin.findById(decoded.user.id).then((user) => {

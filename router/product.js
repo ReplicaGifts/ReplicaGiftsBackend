@@ -14,7 +14,7 @@ const upld = upload.fields([{
 
 router.post("/add-product", upld, async (req, res) => {
 
-    let { category, title, price, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType } = req.body;
+    let { userImage, title, price, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType } = req.body;
 
 
     if (availablePrintSize) {
@@ -57,7 +57,7 @@ router.post("/add-product", upld, async (req, res) => {
 
 
         const product = new Product({
-            category, title, price, amount, discount, description, additionalInfo, availablePrintSize, availablePrintType, images, thumbnail,
+            userImage, title, price, amount, discount, description, additionalInfo, availablePrintSize, availablePrintType, images, thumbnail,
         });
 
         await product.save();
@@ -71,9 +71,31 @@ router.post("/add-product", upld, async (req, res) => {
     }
 });
 
-router.put("/update/:id", adminAuth, upld, async (req, res) => {
-    const { category, title, price, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType, thumbnail, images } = req.body;
+
+
+const upld1 = upload.fields([{
+    name: 'thumbnail',
+    maxCount: 2
+}, {
+    name: 'images',
+    maxCount: 20
+}])
+
+router.put("/update/:id", adminAuth, upld1, async (req, res) => {
+    let { userImage, title, price, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType, thumbnail, images } = req.body;
     const id = req.params.id;
+
+    console.log(req.files)
+
+    console.log(req.body)
+
+    if (availablePrintSize) {
+        availablePrintSize = JSON.parse(availablePrintSize);
+    }
+
+    if (additionalInfo) {
+        additionalInfo = JSON.parse(additionalInfo);
+    }
 
     try {
 
@@ -82,22 +104,26 @@ router.put("/update/:id", adminAuth, upld, async (req, res) => {
             amount = price - (price * (discount / 100));
         }
 
-        if (typeof thumbnail === "object") {
-            thumbnail = `${req.protocol}://${req.get('host')}/${req.files["thumbnail"][0].filename}`;
+
+        try {
+
+            if ('images' in req.files)
+                images = [...images, ...req.files["images"].map((image) => { return `${req.protocol}://${req.get('host')}/${image.filename}` })]
+        } catch (e) {
+            console.log(e);
         }
 
-        let j = 0;
-        if (images) {
-            images.map((image, i) => {
-                if (typeof image === "object") {
-                    images[i] = `${req.protocol}://${req.get('host')}/${req.files["images"][j++].filename}`
-                }
-            })
+        try {
+
+            if ('thumbnail' in req.files)
+                thumbnail = `${req.protocol}://${req.get('host')}/${req.files['thumbnail'][0].filename}`
+        } catch (e) {
+            console.log(e);
         }
 
         const product = await Product.findByIdAndUpdate(id, {
             $set: {
-                category, title, price, amount, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType, thumbnail, images
+                userImage, title, price, amount, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType, thumbnail, images
             }
         });
 
@@ -130,7 +156,7 @@ router.delete("/delete/:id", adminAuth, async (req, res) => {
 router.get("/all", async (req, res) => {
 
     try {
-        const product = await Product.find();
+        const product = await Product.find().populate({ path: 'availablePrintType', select: 'categoryName' });
 
         res.send({ success: true, product: product });
     } catch (error) {
@@ -139,11 +165,22 @@ router.get("/all", async (req, res) => {
 
 });
 
+router.get("/:categoryId", async (req, res) => {
+    const category = req.params.categoryId; // Use req.params instead of req.query
+    try {
+        const result = await Product.find({ availablePrintType: { $in: [category] } }).populate({ path: 'availablePrintType', select: 'categoryName' });
+        res.json(result); // Send response
+    } catch (e) {
+        res.status(500).json({ error: e.message }); // Handle error
+    }
+});
+
+
 
 router.get('/new-arrivals', async (req, res) => {
     try {
         // Retrieve newly arrived products based on some criteria (e.g., createdAt field)
-        const newProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } });
+        const newProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }).populate({ path: 'availablePrintType', select: 'categoryName' });
         res.json(newProducts);
     } catch (err) {
         console.error(err);
@@ -154,7 +191,7 @@ router.get('/new-arrivals', async (req, res) => {
 
 router.get('/trending-products', async (req, res) => {
     try {
-        const trendingProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } })
+        const trendingProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }).populate({ path: 'availablePrintType', select: 'categoryName' })
             .sort({ sales: -1 })
             .limit(10);
         res.json(trendingProducts);

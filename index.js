@@ -9,6 +9,7 @@ const cartRouter = require('./router/shopcart');
 const wishRouter = require('./router/wishList');
 const adminRouter = require('./router/admin');
 const userRouter = require('./router/user');
+const categoryRouter = require('./router/category');
 
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/api/carts", cartRouter);
 app.use("/api/wishlist", wishRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/user", userRouter);
+app.use("/api/category", categoryRouter);
 
 
 mongoose.connect(process.env.MONGOOS_KEY).then(() => {
