@@ -3,11 +3,13 @@ const router = express.Router();
 const User = require('../model/user.model');
 const Product = require('../model/product.model');
 const { userAuth } = require('../common/auth');
+
 const { models } = require('mongoose');
 
 router.post("/add-cart/:id", userAuth, async (req, res) => {
     const userId = req.user.id;
     const productId = req.params.id;
+    console.log(req.body);
     const { quantity } = req.body;
 
     try {
@@ -28,8 +30,10 @@ router.post("/add-cart/:id", userAuth, async (req, res) => {
             return res.status(400).send({ success: false, message: "Product quantity is less than selected quantity" });
         }
 
-        let total = +product.amount * quantity;
 
+        let total = +product.amount * +quantity;
+
+        console.log(total, product.amount, quantity);
         // Check if the product is already in the cart
         const existingItem = user.shoppingCart.find(item => item.productId.toString() === productId);
         if (existingItem) {
@@ -120,7 +124,7 @@ router.post("/edit-quantity/:id", userAuth, async (req, res) => {
 
 router.get("/get-cart", userAuth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("shoppingCart").populate({
+        const user = await User.findById(req.user.id).populate({
             path: 'shoppingCart',
             populate: {
                 path: 'productId'
@@ -131,7 +135,7 @@ router.get("/get-cart", userAuth, async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        res.status(200).json({ success: true, cart: user.shoppingCart });
+        res.status(200).json(user.shoppingCart);
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "An error occurred while retrieving user cart" });

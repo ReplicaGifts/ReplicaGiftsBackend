@@ -10,9 +10,12 @@ const userAuth = function (req, res, next) {
 
     if (!token) return res.status(401).json({ message: "Auth Error" });
 
+    console.log(token);
+
     try {
         const decoded = jwt.verify(token.split(' ')[1], process.env.SECRET_KEY);
 
+        console.log(decoded);
         // Check if the user exists in the user collection
         User.findById(decoded.user.id).then((user) => {
             if (user) {
@@ -20,12 +23,14 @@ const userAuth = function (req, res, next) {
                 req.role = "user"; // Set role to user
                 next(); // Continue to the next middleware or route handler
             } else {
+                console.log(token);
                 // Check if the user exists in the admin collection
                 return res.status(401).json({ message: "Auth Error" });
             }
         });
     }
     catch (err) {
+        console.log(err);
         res.status(500).json({ message: err.message });
     }
 }

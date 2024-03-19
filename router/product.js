@@ -165,7 +165,7 @@ router.get("/all", async (req, res) => {
 
 });
 
-router.get("/:categoryId", async (req, res) => {
+router.get("/category/:categoryId", async (req, res) => {
     const category = req.params.categoryId; // Use req.params instead of req.query
     try {
         const result = await Product.find({ availablePrintType: { $in: [category] } }).populate({ path: 'availablePrintType', select: 'categoryName' });
@@ -179,8 +179,10 @@ router.get("/:categoryId", async (req, res) => {
 
 router.get('/new-arrivals', async (req, res) => {
     try {
-        // Retrieve newly arrived products based on some criteria (e.g., createdAt field)
-        const newProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }).populate({ path: 'availablePrintType', select: 'categoryName' });
+        // Retrieve newly arrived products based on the createdAt field, sorted in descending order
+        const newProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } })
+            .sort({ createdAt: -1 })
+            .populate('availablePrintType');
         res.json(newProducts);
     } catch (err) {
         console.error(err);
@@ -189,15 +191,29 @@ router.get('/new-arrivals', async (req, res) => {
 });
 
 
+
 router.get('/trending-products', async (req, res) => {
     try {
-        const trendingProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }).populate({ path: 'availablePrintType', select: 'categoryName' })
-            .sort({ sales: -1 })
+        const trendingProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } })
+            .populate('availablePrintType') // Ensure 'availablePrintType' matches the model name you're referencing
+            .sort({ noOfPerchases: -1 })
             .limit(10);
+        console.log(trendingProducts)
         res.json(trendingProducts);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+router.get('/data/:id', async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id).populate("availablePrintType");
+        res.send(product);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 

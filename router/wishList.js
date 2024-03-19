@@ -8,15 +8,13 @@ const { userAuth } = require('../common/auth');
 
 router.get('/wish', userAuth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('wishList').populate({
-            path: 'wishList'
-        });
+        const user = await User.findById(req.user.id).populate('wishList');
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        res.status(200).json({ success: true, wishList: user.wishList });
+        res.status(200).json(user.wishList);
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "An error occurred while retrieving user wishlist" });
@@ -24,13 +22,13 @@ router.get('/wish', userAuth, async (req, res) => {
 });
 
 
-router.post("/add-wish/:id", userAuth, async (req, res) => {
+router.post("/add-wish", userAuth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
 
-        user.wishList.push(req.params.id);
+        user.wishList.push(req.body.id);
 
-        user.save();
+        await user.save();
 
         res.status(200).json({ success: true, wishList: user });
     } catch (error) {

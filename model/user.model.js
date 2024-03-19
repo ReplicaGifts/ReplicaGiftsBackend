@@ -21,12 +21,12 @@ module.exports = mongoose.model("User", {
     address: [{ type: String }],
 
     shoppingCart: [{
-        productId: { type: mongoose.Schema.Types.ObjectId, required: true, red: 'Product' },
+        productId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Product' },
         quantity: { type: String, required: true, default: 1 },
         total: Number
     }],
 
-    wishList: [{ type: mongoose.Schema.Types.ObjectId, required: true, red: 'Product' }],
+    wishList: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Product' }],
 
 
     orders: [{

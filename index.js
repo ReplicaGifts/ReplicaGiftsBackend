@@ -11,6 +11,7 @@ const adminRouter = require('./router/admin');
 const categoryRouter = require('./router/category');
 const userRouter = require('./router/user');
 const orderRouter = require('./router/order');
+const frameRouter = require('./router/frame');
 
 
 const app = express();
@@ -25,9 +26,10 @@ app.use("/api/products", productRouter)
 app.use("/api/carts", cartRouter);
 app.use("/api/wishlist", wishRouter)
 app.use("/api/admin", adminRouter)
-app.use("/api/user", userRouter);
+app.use("/api/users", userRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/payment", orderRouter);
+app.use("/api/frame", frameRouter);
 
 
 mongoose.connect(process.env.MONGOOS_KEY).then(() => {
