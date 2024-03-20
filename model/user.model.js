@@ -18,12 +18,22 @@ module.exports = mongoose.model("User", {
         type: Date,
         default: Date.now()
     },
-    address: [{ type: String }],
+    billingDetails: {
+        name: String,
+        email: String,
+        city: { type: String, required: true },
+        country: { type: String, required: true },
+        address: { type: String, required: true },
+
+        postcode: { type: String, required: true },
+        phone: { type: String, required: true },
+    },
 
     shoppingCart: [{
         productId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Product' },
         quantity: { type: String, required: true, default: 1 },
-        total: Number
+        total: Number,
+        userWant: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'FrameDetail' }
     }],
 
     wishList: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Product' }],

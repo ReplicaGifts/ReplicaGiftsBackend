@@ -4,13 +4,12 @@ const User = require('../model/user.model');
 const Product = require('../model/product.model');
 const { userAuth } = require('../common/auth');
 
-const { models } = require('mongoose');
 
 router.post("/add-cart/:id", userAuth, async (req, res) => {
     const userId = req.user.id;
     const productId = req.params.id;
     console.log(req.body);
-    const { quantity } = req.body;
+    const { quantity, frameId } = req.body;
 
     try {
         let user = await User.findById(userId);
@@ -40,7 +39,7 @@ router.post("/add-cart/:id", userAuth, async (req, res) => {
             existingItem.quantity += quantity;
             existingItem.total += total;
         } else {
-            user.shoppingCart.push({ productId, quantity, total });
+            user.shoppingCart.push({ productId, quantity, total, userWant: frameId });
         }
 
         await user.save();

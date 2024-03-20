@@ -12,13 +12,14 @@ const categoryRouter = require('./router/category');
 const userRouter = require('./router/user');
 const orderRouter = require('./router/order');
 const frameRouter = require('./router/frame');
+const profileRouter = require('./router/profile');
 
 
 const app = express();
 const port = 3000;
 
-app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(cors());
+app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
@@ -30,6 +31,7 @@ app.use("/api/users", userRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/payment", orderRouter);
 app.use("/api/frame", frameRouter);
+app.use("/api/profile", profileRouter);
 
 
 mongoose.connect(process.env.MONGOOS_KEY).then(() => {

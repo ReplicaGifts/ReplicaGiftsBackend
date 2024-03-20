@@ -156,9 +156,9 @@ router.delete("/delete/:id", adminAuth, async (req, res) => {
 router.get("/all", async (req, res) => {
 
     try {
-        const product = await Product.find().populate({ path: 'availablePrintType', select: 'categoryName' });
+        const product = await Product.find();
 
-        res.send({ success: true, product: product });
+        res.send(product);
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });
     }
@@ -168,7 +168,7 @@ router.get("/all", async (req, res) => {
 router.get("/category/:categoryId", async (req, res) => {
     const category = req.params.categoryId; // Use req.params instead of req.query
     try {
-        const result = await Product.find({ availablePrintType: { $in: [category] } }).populate({ path: 'availablePrintType', select: 'categoryName' });
+        const result = await Product.find({ availablePrintType: { $in: [category] } }).populate('availablePrintType');
         res.json(result); // Send response
     } catch (e) {
         res.status(500).json({ error: e.message }); // Handle error
@@ -213,6 +213,18 @@ router.get('/data/:id', async (req, res) => {
         res.send(product);
     } catch (error) {
         console.log(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+router.get('/out-of-stock', adminAuth, async (req, res) => {
+    try {
+        const product = await Product.find({ quantity: { $lt: 1 } });
+
+        res.send(product);
+
+    } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
 });

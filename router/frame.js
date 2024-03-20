@@ -1,12 +1,12 @@
 const router = require('express').Router();
-const { userAuth } = require('../common/auth');
+const { userAuth, adminAuth } = require('../common/auth');
 const upload = require('../common/fileUpload');
 
 const FrameDetail = require('../model/frameDeatails.model');
 
 
 
-router.get('/', async (req, res) => {
+router.get('/all', adminAuth, async (req, res) => {
     try {
         const frame = await FrameDetail.find({ status: true }).populate({
             path: 'user',
@@ -48,6 +48,59 @@ router.post("/add-frame", userAuth, upload.single('userImage'), async (req, res)
     }
 });
 
+
+router.get("/get/:id", async function (req, res) {
+
+    try {
+        const frame = await FrameDetail.findById(req.params.id).populate('product');
+
+        res.send({ success: true, product: frame.product, quantity: frame.quantity });
+
+    } catch (error) {
+
+        res.status(500).send({ error: error.message, success: false });
+
+    }
+
+});
+router.get("/get-frame/:id", async function (req, res) {
+
+    try {
+        const frame = await FrameDetail.findById(req.params.id).populate({
+            path: 'product'
+        }).populate({
+            path: 'user'
+        });
+
+        res.send(frame);
+
+    } catch (error) {
+
+        res.status(500).send({ error: error.message, success: false });
+
+    }
+
+});
+
+
+router.get("/orders", adminAuth, async (req, res) => {
+    try {
+        const orders = await FrameDetail.find({ status: true }).populate({
+            path: 'user',
+            select: '-password'
+        }).populate({
+            path: 'product',
+        });
+
+
+        res.send(orders);
+
+    } catch (error) {
+
+        res.status(500).send({ error: error.message, success: false });
+
+    }
+});
 
 
 module.exports = router;
