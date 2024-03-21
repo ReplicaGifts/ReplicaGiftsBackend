@@ -102,6 +102,25 @@ router.get("/orders", adminAuth, async (req, res) => {
     }
 });
 
+router.get('/user-orders', userAuth, async function (req, res) {
+
+    try {
+        const orders = await FrameDetail.find({ user: req.user.id }).populate({
+            path: 'user',
+            select: '-password'
+        }).populate({
+            path: 'product',
+        });
+
+
+        res.send(orders);
+    } catch (error) {
+        res.status(500).send({ error: error.message, success: false });
+
+    }
+
+});
+
 
 module.exports = router;
 

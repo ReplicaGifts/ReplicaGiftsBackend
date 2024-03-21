@@ -18,5 +18,5 @@ module.exports = mongoose.model('FrameDetail', {
     deliveryStatus: { type: String, },
 
     status: { type: Boolean, default: false },
-
+    chreatedAt: { type: Date, default: Date.now() },
 })

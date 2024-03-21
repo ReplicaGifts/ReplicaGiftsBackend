@@ -6,13 +6,13 @@ const { userAuth } = require('../common/auth');
 
 router.post('/add-address', userAuth, async (req, res) => {
 
-    const { name, email, city, country, address, postcode, phone } = req.body;
+    const { name, email, city, country, address, postcode, phone, state } = req.body;
 
 
     try {
         const Address = await User.findById(req.user.id);
 
-        Address.billingDetails = { name, email, city, country, address, postcode, phone };
+        Address.billingDetails = { name, email, city, country, address, postcode, phone, state };
 
         await Address.save();
 
@@ -48,7 +48,7 @@ router.get('/get-address', userAuth, async (req, res) => {
 
 
 router.put('/edit-address/:id', userAuth, async (req, res) => {
-    const { name, email, city, country, address, postcode, phone } = req.body;
+    const { name, email, city, country, address, postcode, phone, state } = req.body;
     const addressId = req.params.id;
 
     try {
@@ -68,6 +68,7 @@ router.put('/edit-address/:id', userAuth, async (req, res) => {
         user.billingDetails[billingDetailIndex].address = address;
         user.billingDetails[billingDetailIndex].postcode = postcode;
         user.billingDetails[billingDetailIndex].phone = phone;
+        user.billingDetails[billingDetailIndex].state = state;
 
         await user.save();
 

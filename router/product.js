@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const { adminAuth } = require('../common/auth');
+const { adminAuth, userAuth } = require('../common/auth');
 const upload = require('../common/fileUpload');
 const Product = require('../model/product.model');
-
+const Category = require('../model/category.model');
 
 const upld = upload.fields([{
     name: 'thumbnail',
@@ -209,7 +209,15 @@ router.get('/trending-products', async (req, res) => {
 
 router.get('/data/:id', async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).populate("availablePrintType");
+        const product = await Product.findById(req.params.id).populate({
+            path: 'availablePrintType'
+        }).populate({
+            path: 'reviews',
+            populate: {
+                path: 'user',
+                select: ['username', 'email']
+            }
+        });
         res.send(product);
     } catch (error) {
         console.log(error);
@@ -229,6 +237,170 @@ router.get('/out-of-stock', adminAuth, async (req, res) => {
     }
 });
 
+
+
+
+
+router.get("/filter", async (req, res) => {
+    try {
+        const categories = await Category.find();
+
+        const page = parseInt(req.query.page) - 1 || 0;
+        const limit = parseInt(req.query.limit) || 12;
+        const search = req.query.search || "";
+        const sort = req.query.sort || "title";
+        const order = req.query.order || 1;
+        let category = req.query.category || "All";
+        const rating = req.query.rating ? parseInt(req.query.rating) : undefined;
+        const discount = req.query.discount ? parseInt(req.query.discount) : undefined;
+        const min = parseInt(req.query.min) || 0;
+        const max = parseInt(req.query.max) || Number.MAX_SAFE_INTEGER;
+
+        category = category === "All" ? categories.map(cate => cate._id) : category.split(",");
+
+        const sortBy = {};
+
+        sortBy[sort] = Number.parseInt(order);
+
+        const query = {
+            title: { $regex: search, $options: "i" },
+            amount: { $gte: min, $lte: max },
+            availablePrintType: { $in: category }
+        };
+
+        if (rating !== undefined) {
+            query.totalrating = rating;
+        }
+
+        if (discount !== undefined) {
+            query.discount = { $gte: discount };
+        }
+
+        console.log(query);
+
+        const product = await Product.find(query)
+            .sort(sortBy)
+            .skip(page * limit)
+            .limit(limit);
+
+        const total = await Product.countDocuments({
+            ...query,
+        });
+
+        let totalPage = Math.ceil(total / limit);
+
+        const response = {
+            error: false,
+            total: totalPage,
+            page: page + 1,
+            limit,
+            category: categories,
+            product
+        };
+
+        res.status(200).json(response);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: true, message: "Internal Server Error" });
+    }
+
+});
+
+
+
+
+router.get("/price-range", async function (req, res) {
+
+    try {
+        const product = await Product.find().sort({ amount: 1 });
+
+        let prices = product.map(prod => +prod.amount);
+
+
+        let maxDiscount = 0;
+        let minDiscount = Number.MAX_SAFE_INTEGER;
+        product.map(prod => { maxDiscount = Math.max(+prod.discount, maxDiscount); minDiscount = Math.min(+prod.discount, minDiscount); });
+
+        res.send({ success: true, ranges: calculateUpperLimit(prices), maxDiscount: minDiscount, minDiscount: minDiscount });
+
+    } catch (error) {
+        res.send({ error: error.message, success: false });
+    }
+
+});
+
+function calculateUpperLimit(prices) {
+    const uniquePricesSet = new Set();
+    uniquePricesSet.add(prices[0]);
+
+    let j = prices[0] + 200;
+    for (let i = 1; i <= prices.length; i++) {
+        if (prices[i] > j) {
+            j = prices[i] + 200;
+        } else {
+            uniquePricesSet.add(j);
+        }
+    }
+
+    return Array.from(uniquePricesSet);
+}
+
+
+router.post('/add-review/:id', userAuth, async function (req, res) {
+
+    const { rating, comment } = req.body;
+
+    try {
+        const product = await Product.findById(req.params.id).populate().populate({
+            path: 'availablePrintType'
+        }).populate({
+            path: 'reviews',
+            populate: {
+                path: 'user',
+                select: ['username', 'email']
+            }
+        });
+
+        product.reviews.push({ rating, comment, user: req.user.id });
+
+        const totalrating = await calculateAverageRating(product.reviews);
+
+        console.log(totalrating);
+
+        product.totalrating = totalrating;
+
+        await product.save();
+
+        res.send(product);
+
+    } catch (error) {
+
+        res.status(500).send({ success: false, message: error.message });
+
+    }
+});
+
+
+
+
+
+
+function calculateAverageRating(reviews) {
+    console.log(reviews)
+    if (reviews.length === 0) {
+        return 0;
+    }
+
+
+    const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+    const averageRating = totalRating / reviews.length;
+
+    console.log(totalRating);
+
+    console.log(averageRating);
+
+    return averageRating;
+}
 
 
 

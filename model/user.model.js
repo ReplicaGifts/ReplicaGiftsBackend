@@ -24,7 +24,7 @@ module.exports = mongoose.model("User", {
         city: { type: String, },
         country: { type: String, },
         address: { type: String, },
-
+        state: { type: String, },
         postcode: { type: String, },
         phone: { type: String, },
     },
