@@ -21,12 +21,12 @@ module.exports = mongoose.model("User", {
     billingDetails: {
         name: String,
         email: String,
-        city: { type: String, required: true },
-        country: { type: String, required: true },
-        address: { type: String, required: true },
+        city: { type: String, },
+        country: { type: String, },
+        address: { type: String, },
 
-        postcode: { type: String, required: true },
-        phone: { type: String, required: true },
+        postcode: { type: String, },
+        phone: { type: String, },
     },
 
     shoppingCart: [{
