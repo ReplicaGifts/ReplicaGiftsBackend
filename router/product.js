@@ -4,17 +4,11 @@ const upload = require('../common/fileUpload');
 const Product = require('../model/product.model');
 const Category = require('../model/category.model');
 
-const upld = upload.fields([{
-    name: 'thumbnail',
-    maxCount: 2
-}, {
-    name: 'images',
-    maxCount: 20
-}])
 
-router.post("/add-product", upld, async (req, res) => {
 
-    let { userImage, title, price, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType } = req.body;
+router.post("/add-product", upload.single("image"), async (req, res) => {
+
+    let { userImage, title, price, discount, description, category, additionalInfo, quantity, availablePrintSize, availablePrintType } = req.body;
 
 
     if (availablePrintSize) {
@@ -36,28 +30,17 @@ router.post("/add-product", upld, async (req, res) => {
             amount = price - (price * (discount / 100));
         }
 
-        if (!req.files['thumbnail']) {
-            return res.status(404).send({ success: false, message: 'Product thumbnail not found ' })
-        }
 
-        if (!req.files['images']) {
+        if (!req.file) {
             return res.status(404).send({ success: false, message: 'Product images not found ' })
         }
 
-        const thumbnail = `${req.protocol}://${req.get('host')}/${req.files["thumbnail"][0].filename}`;
-
-        let images = [];
-
-        req.files['images'].map(image => {
-
-            images.push(`${req.protocol}://${req.get('host')}/${image.filename}`)
-        });
-
+        const image = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
 
 
 
         const product = new Product({
-            userImage, title, price, amount, discount, description, additionalInfo, availablePrintSize, availablePrintType, images, thumbnail,
+            userImage, title, price, amount, discount, description, additionalInfo, availablePrintSize, category, availablePrintType, image,
         });
 
         await product.save();
@@ -73,19 +56,12 @@ router.post("/add-product", upld, async (req, res) => {
 
 
 
-const upld1 = upload.fields([{
-    name: 'thumbnail',
-    maxCount: 2
-}, {
-    name: 'images',
-    maxCount: 20
-}])
 
-router.put("/update/:id", adminAuth, upld1, async (req, res) => {
-    let { userImage, title, price, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType, thumbnail, images } = req.body;
+
+router.put("/update/:id", adminAuth, upload.single("image"), async (req, res) => {
+    let { userImage, title, price, discount, description, category, additionalInfo, quantity, availablePrintSize, availablePrintType, image } = req.body;
     const id = req.params.id;
 
-    console.log(req.files)
 
     console.log(req.body)
 
@@ -105,25 +81,15 @@ router.put("/update/:id", adminAuth, upld1, async (req, res) => {
         }
 
 
-        try {
-
-            if ('images' in req.files)
-                images = [...images, ...req.files["images"].map((image) => { return `${req.protocol}://${req.get('host')}/${image.filename}` })]
-        } catch (e) {
-            console.log(e);
+        if (req.file) {
+            image = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
         }
 
-        try {
 
-            if ('thumbnail' in req.files)
-                thumbnail = `${req.protocol}://${req.get('host')}/${req.files['thumbnail'][0].filename}`
-        } catch (e) {
-            console.log(e);
-        }
 
         const product = await Product.findByIdAndUpdate(id, {
             $set: {
-                userImage, title, price, amount, discount, description, additionalInfo, quantity, availablePrintSize, availablePrintType, thumbnail, images
+                userImage, title, price, amount, discount, description, additionalInfo, category, quantity, availablePrintSize, availablePrintType, image
             }
         });
 
@@ -168,7 +134,12 @@ router.get("/all", async (req, res) => {
 router.get("/category/:categoryId", async (req, res) => {
     const category = req.params.categoryId; // Use req.params instead of req.query
     try {
-        const result = await Product.find({ availablePrintType: { $in: [category] } }).populate('availablePrintType');
+        const result = await Product.find({
+            $or: [
+                { availablePrintType: { $in: [category] } },
+                { category: category }
+            ]
+        }).populate('availablePrintType');
         res.json(result); // Send response
     } catch (e) {
         res.status(500).json({ error: e.message }); // Handle error
@@ -265,7 +236,10 @@ router.get("/filter", async (req, res) => {
         const query = {
             title: { $regex: search, $options: "i" },
             amount: { $gte: min, $lte: max },
-            availablePrintType: { $in: category }
+            $or: [
+                { availablePrintType: { $in: category } },
+                { category: { $in: category } }
+            ]
         };
 
         if (rating !== undefined) {

@@ -1,11 +1,12 @@
 const { default: mongoose } = require("mongoose");
 
 module.exports = mongoose.model('Product', {
-    thumbnail: { type: String, required: true },
-    images: [{ type: String, required: true }],
+
+    image: { type: String, required: true },
     title: { type: String, required: true },
     price: { type: Number, required: true },
     discount: { type: Number, required: true },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'category', required: true },
     amount: { type: Number, required: true },
     description: { type: String, required: true },
     additionalInfo: [{ title: String, description: String }],

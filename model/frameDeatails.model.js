@@ -16,6 +16,16 @@ module.exports = mongoose.model('FrameDetail', {
     orderId: { type: String },
 
     deliveryStatus: { type: String, },
+    gifts: [{
+
+        gift: { type: mongoose.Schema.Types.ObjectId, ref: 'gift' },
+        quantity: { type: Number, required: true },
+        total: { type: Number, required: true }
+    }
+    ],
+
+
+    totalAmount: { type: Number, },
 
     status: { type: Boolean, default: false },
     chreatedAt: { type: Date, default: Date.now() },

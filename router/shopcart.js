@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../model/user.model');
 const Product = require('../model/product.model');
 const { userAuth } = require('../common/auth');
+const Frame = require('../model/frameDeatails.model');
 
 
 router.post("/add-cart/:id", userAuth, async (req, res) => {
@@ -67,6 +68,8 @@ router.delete("/remove-item/:id", userAuth, async function (req, res) {
             return res.status(404).send({ success: false, message: "Item not found in cart" });
         }
 
+        Frame.deleteOne({ _id: user.shoppingCart[index].userWant }).then(() => { console.log("deleted") });
+
         user.shoppingCart.splice(index, 1);
 
         await user.save();
@@ -125,10 +128,21 @@ router.get("/get-cart", userAuth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).populate({
             path: 'shoppingCart',
-            populate: {
-                path: 'productId'
-            }
-        });
+            populate: [
+                { path: 'productId' },
+                {
+                    path: 'userWant',
+                    populate: {
+                        path: 'gifts',
+                        populate: {
+                            path: 'gift'
+                        }
+                    }
+                }
+            ]
+        }
+
+        )
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
