@@ -33,14 +33,15 @@ const createOrder = async (req, res) => {
             const frameId = req.body.frameId[i];
 
             // Find the corresponding frame detail
-            const frame = frames.find(f => f._id.toString() === frameId.toString());
+            const frame = frames.find(f => f._id.toString() === frameId._id.toString());
 
             // Update delivery address for the frame
             if (frame) {
+                console.log(frame);
                 frame.deliveryAddress = req.body.data;
+                frameDetails.push(frame._id);
                 // Save the updated frame (if necessary)
                 await frame.save();
-                frameDetails.push(frame._id);
             }
         }
 

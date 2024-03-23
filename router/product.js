@@ -122,7 +122,7 @@ router.delete("/delete/:id", adminAuth, async (req, res) => {
 router.get("/all", async (req, res) => {
 
     try {
-        const product = await Product.find();
+        const product = await Product.find().populate('category');;
 
         res.send(product);
     } catch (error) {
@@ -139,7 +139,7 @@ router.get("/category/:categoryId", async (req, res) => {
                 { availablePrintType: { $in: [category] } },
                 { category: category }
             ]
-        }).populate('availablePrintType');
+        }).populate(['availablePrintType', 'category']).limit(4);
         res.json(result); // Send response
     } catch (e) {
         res.status(500).json({ error: e.message }); // Handle error
@@ -188,6 +188,8 @@ router.get('/data/:id', async (req, res) => {
                 path: 'user',
                 select: ['username', 'email']
             }
+        }).populate({
+            path: 'category',
         });
         res.send(product);
     } catch (error) {
@@ -255,7 +257,7 @@ router.get("/filter", async (req, res) => {
         const product = await Product.find(query)
             .sort(sortBy)
             .skip(page * limit)
-            .limit(limit);
+            .limit(limit).populate('category');
 
         const total = await Product.countDocuments({
             ...query,

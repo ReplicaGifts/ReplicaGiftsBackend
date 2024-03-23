@@ -16,6 +16,8 @@ payment_route.post('/verifyPayment', userAuth, async (req, res) => {
     // Verify the payment signature
     const isValidSignature = paymentController.verifyRazorpaySignature(orderId, paymentId, signature);
 
+    console.log(isValidSignature, 'sakdhkia')
+
     if (isValidSignature) {
 
         const frames = await Frame.find({ user: req.user.id });
@@ -26,9 +28,11 @@ payment_route.post('/verifyPayment', userAuth, async (req, res) => {
 
             // Find the corresponding frame detail
             const frame = frames.find(f => f._id.toString() === frameId.toString());
-
+            console.log(frame, "hy")
             if (frame) {
                 // Update delivery status and order ID for the frame
+
+                console.log(frame, "sadasd")
                 frame.status = true;
                 frame.orderId = orderId;
 
@@ -58,7 +62,6 @@ payment_route.post('/verifyPayment', userAuth, async (req, res) => {
             await cart.save();
         }
 
-        console.log(frames)
         res.status(200).json({ success: true, message: 'Payment signature verified successfully.' });
     } else {
         res.status(400).json({ success: false, message: 'Invalid payment signature.' });

@@ -108,7 +108,22 @@ router.post("/edit-quantity/:id", userAuth, async (req, res) => {
             return res.status(400).send({ success: false, message: "Product quantity is less than selected quantity" });
         }
 
+
         const total = product.amount * quantity;
+        let frame = await Frame.findById(item.userWant);
+
+        frame.quantity = +quantity;
+
+
+        let totalAmount = total;
+
+        if (frame.gifts) {
+            frame.gifts.map(f => { totalAmount += f.total })
+        }
+
+        frame.totalAmount = totalAmount;
+
+        await frame.save();
 
         item.quantity = quantity;
         item.total = total;
