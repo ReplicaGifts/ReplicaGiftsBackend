@@ -130,10 +130,13 @@ router.get("/orders", adminAuth, async (req, res) => {
             populate: {
                 path: 'gift'
             }
-        });
+        }).sort({ createdAt: -1 })
+        const splitIndex = Math.min(4, orders.length);
 
-
-        res.send(orders);
+        // Split the orders array into two arrays
+        const recentlyAdded = orders.slice(0, splitIndex); // Get the first 4 elements or less
+        const remainingOrders = orders.slice(splitIndex);
+        res.send({ recentlyAdded, remainingOrders, orders });
 
     } catch (error) {
 

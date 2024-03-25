@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const User = require("../model/admin.model");
 
+const Contact = require("../model/contact.model");
+
 // const auth = require("../middelware/auth");
 // const adminRole = require('../middelware/checkRole');
 
@@ -164,6 +166,41 @@ router.get("/me", async (req, res) => {
     }
 });
 
+
+router.post('/contact', async (req, res) => {
+
+
+    const { name, email, subject, message } = req.body;
+
+    try {
+
+        const contact = new Contact({
+            name, email, subject, message
+        })
+
+
+        contact.save();
+
+        res.send({ success: true, message: 'contact successfully' });
+
+    } catch (e) {
+        res.status(500).send({ error: e.message, success });
+    }
+});
+
+
+router.get('/contact', async (req, res) => {
+
+    try {
+
+        const contact = await Contact.find()
+
+        res.send(contact);
+    } catch (e) {
+
+        res.status(500).send({ success: false, error: e.message });
+    }
+})
 
 
 module.exports = router;

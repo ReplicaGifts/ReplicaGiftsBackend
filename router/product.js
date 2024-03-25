@@ -151,8 +151,9 @@ router.get("/category/:categoryId", async (req, res) => {
 router.get('/new-arrivals', async (req, res) => {
     try {
         // Retrieve newly arrived products based on the createdAt field, sorted in descending order
-        const newProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } })
+        const newProducts = await Product.find()
             .sort({ createdAt: -1 })
+            .limit(6)
             .populate(['availablePrintType', 'category'])
         res.json(newProducts);
     } catch (err) {
@@ -203,7 +204,6 @@ router.get('/out-of-stock', adminAuth, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 
 
 
