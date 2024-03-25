@@ -62,7 +62,7 @@ router.put("/update/:id", adminAuth, upload.single("image"), async (req, res) =>
     let { userImage, title, price, discount, description, category, additionalInfo, quantity, availablePrintSize, availablePrintType, image } = req.body;
     const id = req.params.id;
 
-
+    console.log(category)
     console.log(req.body)
 
     if (availablePrintSize) {
@@ -89,11 +89,11 @@ router.put("/update/:id", adminAuth, upload.single("image"), async (req, res) =>
 
         const product = await Product.findByIdAndUpdate(id, {
             $set: {
-                userImage, title, price, amount, discount, description, additionalInfo, category, quantity, availablePrintSize, availablePrintType, image
+                userImage, title, price, amount, discount, description, additionalInfo, category: category, quantity, availablePrintSize, availablePrintType, image
             }
-        });
+        }, { new: true });
 
-        await product.save();
+        console.log(product);
 
         res.send({ success: true, product });
 
@@ -153,7 +153,7 @@ router.get('/new-arrivals', async (req, res) => {
         // Retrieve newly arrived products based on the createdAt field, sorted in descending order
         const newProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } })
             .sort({ createdAt: -1 })
-            .populate('availablePrintType');
+            .populate(['availablePrintType', 'category'])
         res.json(newProducts);
     } catch (err) {
         console.error(err);
@@ -166,7 +166,7 @@ router.get('/new-arrivals', async (req, res) => {
 router.get('/trending-products', async (req, res) => {
     try {
         const trendingProducts = await Product.find({ createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } })
-            .populate('availablePrintType') // Ensure 'availablePrintType' matches the model name you're referencing
+            .populate(['availablePrintType', 'category'])
             .sort({ noOfPerchases: -1 })
             .limit(10);
         console.log(trendingProducts)
@@ -182,12 +182,6 @@ router.get('/data/:id', async (req, res) => {
     try {
         const product = await Product.findById(req.params.id).populate({
             path: 'availablePrintType'
-        }).populate({
-            path: 'reviews',
-            populate: {
-                path: 'user',
-                select: ['username', 'email']
-            }
         }).populate({
             path: 'category',
         });
@@ -257,7 +251,9 @@ router.get("/filter", async (req, res) => {
         const product = await Product.find(query)
             .sort(sortBy)
             .skip(page * limit)
-            .limit(limit).populate('category');
+            .limit(limit).populate({
+                path: 'category'
+            });
 
         const total = await Product.countDocuments({
             ...query,

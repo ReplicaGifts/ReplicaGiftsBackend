@@ -35,7 +35,7 @@ payment_route.post('/verifyPayment', userAuth, async (req, res) => {
                 console.log(frame, "sadasd")
                 frame.status = true;
                 frame.orderId = orderId;
-
+                frame.chreatedAt = Date.now();
                 // Remove frame from shopping cart
                 const cartIndex = cart.shoppingCart.findIndex(item => item.userWant.toString() === frame._id.toString());
                 if (cartIndex !== -1) {
