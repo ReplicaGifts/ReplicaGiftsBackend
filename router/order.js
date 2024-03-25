@@ -16,7 +16,6 @@ payment_route.post('/verifyPayment', userAuth, async (req, res) => {
     // Verify the payment signature
     const isValidSignature = paymentController.verifyRazorpaySignature(orderId, paymentId, signature);
 
-    console.log(isValidSignature, 'sakdhkia')
 
     if (isValidSignature) {
 
