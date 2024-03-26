@@ -2,15 +2,21 @@ const express = require('express');
 const router = express.Router();
 const User = require('../model/user.model');
 const { userAuth } = require('../common/auth');
+const upload = require('../common/fileUpload');
 
 
-router.post('/add-address', userAuth, async (req, res) => {
+router.post('/add-address', userAuth, upload.single('pic'), async (req, res) => {
 
     const { name, email, city, country, address, postcode, phone, state } = req.body;
-
+    console.log(name, email, city, req.file)
 
     try {
         const Address = await User.findById(req.user.id);
+
+        if (req.file) {
+
+            Address.profile = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+        }
 
         Address.billingDetails = { name, email, city, country, address, postcode, phone, state };
 

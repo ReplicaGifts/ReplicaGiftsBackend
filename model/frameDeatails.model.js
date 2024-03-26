@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 
+
 module.exports = mongoose.model('FrameDetail', {
 
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
@@ -27,6 +28,11 @@ module.exports = mongoose.model('FrameDetail', {
 
     totalAmount: { type: Number, },
 
+    tracking_id: { type: String },
+
     status: { type: Boolean, default: false },
+    isViewed: { type: Boolean, default: false },
     chreatedAt: { type: Date, default: Date.now() },
 })
+
+

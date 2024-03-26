@@ -6,6 +6,7 @@ const router = express.Router();
 const User = require("../model/admin.model");
 
 const Contact = require("../model/contact.model");
+const { adminAuth } = require("../common/auth");
 
 // const auth = require("../middelware/auth");
 // const adminRole = require('../middelware/checkRole');
@@ -156,7 +157,7 @@ router.post(
 
 
 
-router.get("/me", async (req, res) => {
+router.get("/me", adminAuth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         res.json(user);
@@ -170,12 +171,12 @@ router.get("/me", async (req, res) => {
 router.post('/contact', async (req, res) => {
 
 
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message, phone } = req.body;
 
     try {
 
         const contact = new Contact({
-            name, email, subject, message
+            name, email, subject, message, phone
         })
 
 
@@ -193,14 +194,29 @@ router.get('/contact', async (req, res) => {
 
     try {
 
-        const contact = await Contact.find()
+        const contact = await Contact.find();
 
-        res.send(contact);
+        const recentlyAdded = contact.filter(contact => !contact.isViewed);
+        const viewed = contact.filter(contact => contact.isViewed);
+
+        res.send({ recentlyAdded, viewed, contact });
     } catch (e) {
 
         res.status(500).send({ success: false, error: e.message });
     }
-})
+});
+
+
+router.post('/viewed/:id', adminAuth, async (req, res) => {
+    try {
+        const contact = await Contact.findByIdAndUpdate(req.params.id, { $set: { isViewed: true } });
+
+        res.send({ success: true, contact });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ error: error, success: false });
+    }
+});
 
 
 module.exports = router;

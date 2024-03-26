@@ -131,16 +131,31 @@ router.get("/orders", adminAuth, async (req, res) => {
                 path: 'gift'
             }
         }).sort({ createdAt: -1 })
-        const splitIndex = Math.min(4, orders.length);
 
         // Split the orders array into two arrays
-        const recentlyAdded = orders.slice(0, splitIndex); // Get the first 4 elements or less
-        const remainingOrders = orders.slice(splitIndex);
+        const recentlyAdded = orders.filter(ord => !ord.isViewed); // Get the first 4 elements or less
+        const remainingOrders = orders.filter(ord => ord.isViewed);
+
+        console.log(recentlyAdded, remainingOrders);
         res.send({ recentlyAdded, remainingOrders, orders });
 
     } catch (error) {
 
         res.status(500).send({ error: error.message, success: false });
+
+    }
+});
+
+
+router.post('/viewed/:id', adminAuth, async function (req, res) {
+    try {
+        const order = await FrameDetail.findByIdAndUpdate(req.params.id, { $set: { isViewed: true } });
+
+
+        res.send({ success: true, order });
+
+    } catch (error) {
+        res.status(500).send({ success: false, error: error.message });
 
     }
 });
@@ -169,6 +184,44 @@ router.get('/user-orders', userAuth, async function (req, res) {
 
 });
 
+
+router.put('/:id/delivery-status', adminAuth, async function (req, res) {
+
+    const status = req.body.status;
+
+
+    try {
+        if (!status) {
+            return res.status(404).send({ message: 'Stattus Not Found' });
+        }
+
+        const order = await FrameDetail.findByIdAndUpdate(req.params.id, { $set: { deliveryStatus: status } });
+
+        res.send({ success: true, order });
+
+    } catch (error) {
+        res.status(500).send({ error: error.message, success: false });
+    }
+});
+
+
+router.put('/:id/tracking-id', adminAuth, async (req, res) => {
+    const id = req.body.trackingId;
+
+
+    try {
+        if (!id) {
+            return res.status(404).send({ message: 'Tracking id  Not Found' });
+        }
+
+        const order = await FrameDetail.findByIdAndUpdate(req.params.id, { $set: { tracking_id: id } });
+
+        res.send({ success: true, order });
+
+    } catch (error) {
+        res.status(500).send({ error: error.message, success: false });
+    }
+})
 
 module.exports = router;
 

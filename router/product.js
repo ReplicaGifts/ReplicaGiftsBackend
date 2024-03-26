@@ -223,7 +223,7 @@ router.get("/filter", async (req, res) => {
         const min = parseInt(req.query.min) || 0;
         const max = parseInt(req.query.max) || Number.MAX_SAFE_INTEGER;
 
-        category = category === "All" ? categories.map(cate => cate._id) : category.split(",");
+        category = category === "All" ? categories.map(cate => cate._id) : category;
 
         const sortBy = {};
 

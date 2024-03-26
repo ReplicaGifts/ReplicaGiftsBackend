@@ -14,6 +14,7 @@ const orderRouter = require('./router/order');
 const frameRouter = require('./router/frame');
 const profileRouter = require('./router/profile');
 const giftsRouter = require('./router/gifts');
+const trackRouter = require('./router/trackMore');
 
 const app = express();
 const port = 3000;
@@ -33,6 +34,7 @@ app.use("/api/payment", orderRouter);
 app.use("/api/frame", frameRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/gifts", giftsRouter);
+app.use("/api/trackmore", trackRouter);
 
 
 mongoose.connect(process.env.MONGOOS_KEY).then(() => {
