@@ -5,7 +5,9 @@ module.exports = mongoose.model('FrameDetail', {
 
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
 
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
+    guest: String,
 
     userImage: { type: String },
     printType: { type: String, required: true },

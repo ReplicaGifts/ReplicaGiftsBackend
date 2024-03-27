@@ -7,7 +7,7 @@ const paymentController = require('../controllers/paymentController');
 const { userAuth } = require('../common/auth');
 
 payment_route.get('/', userAuth, paymentController.renderProductPage);
-payment_route.post('/createOrder', userAuth, paymentController.createOrder);
+payment_route.post('/createOrder', userAuth, (req, res, next) => { req.body['user'] = ''; next() }, paymentController.createOrder);
 
 
 payment_route.post('/verifyPayment', userAuth, async (req, res) => {

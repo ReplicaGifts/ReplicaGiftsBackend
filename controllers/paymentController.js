@@ -23,7 +23,16 @@ const renderProductPage = async (req, res) => {
 const createOrder = async (req, res) => {
     try {
         // Find frame details for the user
-        const frames = await FrameDetail.find({ user: req.user.id });
+        let frames;
+
+        if (req.body.user !== '') {
+
+            frames = await FrameDetail.find({ guest: req.body.user });
+        } else {
+            frames = await FrameDetail.find({ user: req.user.id });
+
+        }
+
         console.log(req.body);
 
         const frameDetails = [];
