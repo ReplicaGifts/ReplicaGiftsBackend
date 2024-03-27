@@ -209,7 +209,7 @@ router.get('/contact', async (req, res) => {
 
 router.post('/viewed/:id', adminAuth, async (req, res) => {
     try {
-        const contact = await Contact.findByIdAndUpdate(req.params.id, { $set: { isViewed: true } });
+        const contact = await Contact.findByIdAndUpdate(req.params.id, { $set: { isViewed: true } }, { new: true });
 
         res.send({ success: true, contact });
     } catch (error) {
