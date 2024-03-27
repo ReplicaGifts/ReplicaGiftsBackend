@@ -8,7 +8,7 @@ const upload = require('../common/fileUpload');
 router.post('/add-address', userAuth, upload.single('pic'), async (req, res) => {
 
     const { name, email, city, country, address, postcode, phone, state } = req.body;
-    console.log(name, email, city, req.file)
+    // console.log(name, email, city, req.file)
 
     try {
         const Address = await User.findById(req.user.id);
@@ -28,7 +28,7 @@ router.post('/add-address', userAuth, upload.single('pic'), async (req, res) => 
 
     } catch (error) {
 
-        res.status({ success: false, message: error.message });
+        res.status(500).send({ success: false, message: error.message });
 
     }
 
