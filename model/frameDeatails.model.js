@@ -19,7 +19,7 @@ module.exports = mongoose.model('FrameDetail', {
 
     orderId: { type: String },
 
-    deliveryStatus: { type: String, },
+    deliveryStatus: { type: String, default: 'Processing' },
     gifts: [{
 
         gift: { type: mongoose.Schema.Types.ObjectId, ref: 'gift' },
