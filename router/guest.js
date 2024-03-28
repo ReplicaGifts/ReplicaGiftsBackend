@@ -22,9 +22,9 @@ router.put("/frame-quantity/:id", async (req, res) => {
             return res.status(404).send({ success: false, message: "Product not found" });
         }
 
-        if (product.quantity < quantity) {
-            return res.status(400).send({ success: false, message: "Product quantity is less than selected quantity" });
-        }
+        // if (product.quantity < quantity) {
+        //     return res.status(400).send({ success: false, message: "Product quantity is less than selected quantity" });
+        // }
 
 
         frame.quantity = +quantity;

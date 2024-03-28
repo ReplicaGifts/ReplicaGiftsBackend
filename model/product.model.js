@@ -11,7 +11,6 @@ module.exports = mongoose.model('Product', {
     description: { type: String, required: true },
     additionalInfo: [{ title: String, description: String }],
     totalrating: { type: Number, default: 0 },
-    quantity: { type: Number, default: 1 },
     availablePrintSize: [{ width: Number, height: Number }],
     availablePrintType: [{ type: mongoose.Schema.Types.ObjectId, ref: 'category', required: true }],
     createdAt: { type: Date, default: Date.now() },
