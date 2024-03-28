@@ -144,7 +144,6 @@ router.post('/verifyPayment', async (req, res) => {
 
                 if (product) {
                     // Ensure that quantity is defined and perform update operation
-                    product.quantity -= frame.quantity;
                     product.noOfPerchases += frame.quantity;
                     await product.save();
                 } else {
