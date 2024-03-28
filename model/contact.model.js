@@ -8,7 +8,7 @@ module.exports = mongoose.model('Contact', {
     subject: String,
     chreatedAt: { type: Date, default: Date.now() },
     isViewed: { type: Boolean, default: false },
-
+    notify: { type: Boolean, default: false }
 });
 
 

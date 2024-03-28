@@ -206,6 +206,27 @@ router.get('/contact', async (req, res) => {
     }
 });
 
+router.post('/notified/:id', adminAuth, async (req, res) => {
+    try {
+        const contact = await Contact.findByIdAndUpdate(req.params.id, { $set: { notify: true } });
+
+        res.send({ success: true, contact });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ error: error, success: false });
+    }
+})
+
+router.get('/notify', async function (req, res) {
+    try {
+        const count = await Contact.countDocuments({ notify: false });
+        console.log(count, "asdfghjasdfg");
+        res.json({ count });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 router.post('/viewed/:id', adminAuth, async (req, res) => {
     try {

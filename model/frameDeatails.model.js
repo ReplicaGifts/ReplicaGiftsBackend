@@ -1,3 +1,4 @@
+
 const { default: mongoose } = require("mongoose");
 
 
@@ -34,7 +35,9 @@ module.exports = mongoose.model('FrameDetail', {
 
     status: { type: Boolean, default: false },
     isViewed: { type: Boolean, default: false },
+    notify: { type: Boolean, default: false },
     chreatedAt: { type: Date, default: Date.now() },
-})
+});
+
 
 

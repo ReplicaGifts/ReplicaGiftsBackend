@@ -136,13 +136,36 @@ router.get("/orders", adminAuth, async (req, res) => {
         const recentlyAdded = orders.filter(ord => !ord.isViewed); // Get the first 4 elements or less
         const remainingOrders = orders.filter(ord => ord.isViewed);
 
-        console.log(recentlyAdded, remainingOrders);
         res.send({ recentlyAdded, remainingOrders, orders });
 
     } catch (error) {
 
         res.status(500).send({ error: error.message, success: false });
 
+    }
+});
+
+
+
+router.post('/notified/:id', adminAuth, async (req, res) => {
+    try {
+        const frame = await FrameDetail.findByIdAndUpdate(req.params.id, { $set: { notify: true } });
+        console.log('f')
+        res.send({ success: true, frame });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ error: error, success: false });
+    }
+})
+
+router.get('/notify', async function (req, res) {
+    try {
+        const count = await FrameDetail.countDocuments({ notify: false });
+        console.log(count, "contur::");
+        res.json({ count });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
