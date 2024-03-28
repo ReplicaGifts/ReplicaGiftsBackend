@@ -31,7 +31,7 @@ module.exports = mongoose.model("User", {
 
     shoppingCart: [{
         productId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Product' },
-        quantity: { type: String, required: true, default: 1 },
+        quantity: { type: Number, required: true, default: 1 },
         total: Number,
         userWant: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'FrameDetail' }
     }],

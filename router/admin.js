@@ -194,6 +194,8 @@ router.get('/contact', async (req, res) => {
 
     try {
 
+        await Contact.updateMany({ notify: true });
+
         const contact = await Contact.find();
 
         const recentlyAdded = contact.filter(contact => !contact.isViewed);
@@ -206,16 +208,6 @@ router.get('/contact', async (req, res) => {
     }
 });
 
-router.post('/notified/:id', adminAuth, async (req, res) => {
-    try {
-        const contact = await Contact.findByIdAndUpdate(req.params.id, { $set: { notify: true } });
-
-        res.send({ success: true, contact });
-    } catch (error) {
-        console.log(error)
-        res.status(500).send({ error: error, success: false });
-    }
-})
 
 router.get('/notify', async function (req, res) {
     try {

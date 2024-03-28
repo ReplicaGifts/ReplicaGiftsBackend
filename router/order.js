@@ -45,8 +45,6 @@ payment_route.post('/verifyPayment', userAuth, async (req, res) => {
                 const product = await Product.findById(frame.product);
 
                 if (product) {
-                    // Ensure that quantity is defined and perform update operation
-                    product.quantity -= frame.quantity;
                     product.noOfPerchases += frame.quantity;
                     await product.save();
                 } else {

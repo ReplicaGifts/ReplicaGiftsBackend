@@ -120,6 +120,13 @@ router.get("/get-frame/:id", async function (req, res) {
 
 router.get("/orders", adminAuth, async (req, res) => {
     try {
+
+        const result = await FrameDetail.updateMany(
+            { status: true },
+            { $set: { notify: true } }
+        );
+
+
         const orders = await FrameDetail.find({ status: true }).populate({
             path: 'user',
             select: '-password'

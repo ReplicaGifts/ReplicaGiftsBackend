@@ -8,7 +8,7 @@ const Category = require('../model/category.model');
 
 router.post("/add-product", upload.single("image"), async (req, res) => {
 
-    let { userImage, title, price, discount, description, category, additionalInfo, quantity, availablePrintSize, availablePrintType } = req.body;
+    let { userImage, title, price, discount, description, category, additionalInfo, availablePrintSize, availablePrintType } = req.body;
 
 
     if (availablePrintSize) {
@@ -19,9 +19,6 @@ router.post("/add-product", upload.single("image"), async (req, res) => {
         additionalInfo = JSON.parse(additionalInfo);
     }
 
-    if (!quantity) {
-        quantity = 10;
-    }
 
     try {
 
@@ -59,7 +56,7 @@ router.post("/add-product", upload.single("image"), async (req, res) => {
 
 
 router.put("/update/:id", adminAuth, upload.single("image"), async (req, res) => {
-    let { userImage, title, price, discount, description, category, additionalInfo, quantity, availablePrintSize, availablePrintType, image } = req.body;
+    let { userImage, title, price, discount, description, category, additionalInfo, availablePrintSize, availablePrintType, image } = req.body;
     const id = req.params.id;
 
     console.log(category)
@@ -89,7 +86,7 @@ router.put("/update/:id", adminAuth, upload.single("image"), async (req, res) =>
 
         const product = await Product.findByIdAndUpdate(id, {
             $set: {
-                userImage, title, price, amount, discount, description, additionalInfo, category: category, quantity, availablePrintSize, availablePrintType, image
+                userImage, title, price, amount, discount, description, additionalInfo, category: category, availablePrintSize, availablePrintType, image
             }
         }, { new: true });
 
@@ -194,16 +191,16 @@ router.get('/data/:id', async (req, res) => {
 });
 
 
-router.get('/out-of-stock', adminAuth, async (req, res) => {
-    try {
-        const product = await Product.find({ quantity: { $lt: 1 } });
+// router.get('/out-of-stock', adminAuth, async (req, res) => {
+//     try {
+//         const product = await Product.find({ quantity: { $lt: 1 } });
 
-        res.send(product);
+//         res.send(product);
 
-    } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
+//     } catch (error) {
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
 
 
 

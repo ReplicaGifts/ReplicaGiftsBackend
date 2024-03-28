@@ -26,9 +26,9 @@ router.post("/add-cart/:id", userAuth, async (req, res) => {
             return res.status(404).send({ success: false, message: "Product not found" });
         }
 
-        if (+product.quantity < quantity) {
-            return res.status(400).send({ success: false, message: "Product quantity is less than selected quantity" });
-        }
+        // if (+product.quantity < quantity) {
+        //     return res.status(400).send({ success: false, message: "Product quantity is less than selected quantity" });
+        // }
 
 
         let total = +product.amount * +quantity;
@@ -104,9 +104,9 @@ router.post("/edit-quantity/:id", userAuth, async (req, res) => {
             return res.status(404).send({ success: false, message: "Product not found" });
         }
 
-        if (product.quantity < quantity) {
-            return res.status(400).send({ success: false, message: "Product quantity is less than selected quantity" });
-        }
+        // if (product.quantity < quantity) {
+        //     return res.status(400).send({ success: false, message: "Product quantity is less than selected quantity" });
+        // }
 
 
         const total = product.amount * quantity;
