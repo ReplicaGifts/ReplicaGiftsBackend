@@ -21,8 +21,8 @@ const app = express();
 const port = 3000;
 
 app.use(cors({
-    origin: ['/http://localhost:3000', 'https://replica-gifts-frontend.vercel.app/', '/'],
-    methods: ['GET', 'POST'],
+    origin: ['/http://localhost:4200', '/http://localhost:3000', 'https://replica-gifts-frontend.vercel.app/', '/'],
+    methods: ['GET', 'POST', 'HEAD'],
 }));
 app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(bodyParser.json());
