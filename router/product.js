@@ -3,13 +3,15 @@ const { adminAuth, userAuth } = require('../common/auth');
 const upload = require('../common/fileUpload');
 const Product = require('../model/product.model');
 const Category = require('../model/category.model');
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+
 
 
 
 router.post("/add-product", upload.single("image"), async (req, res) => {
 
     let { userImage, title, price, discount, description, category, additionalInfo, availablePrintSize, availablePrintType } = req.body;
-
 
     if (availablePrintSize) {
         availablePrintSize = JSON.parse(availablePrintSize);
@@ -19,9 +21,7 @@ router.post("/add-product", upload.single("image"), async (req, res) => {
         additionalInfo = JSON.parse(additionalInfo);
     }
 
-
     try {
-
         let amount = price;
         if (discount) {
             amount = price - (price * (discount / 100));
@@ -51,6 +51,56 @@ router.post("/add-product", upload.single("image"), async (req, res) => {
     }
 });
 
+
+
+
+
+// router.post("/add-product", upload.single("image"), async (req, res) => {
+
+//     let { userImage, title, price, discount, description, category, additionalInfo, availablePrintSize, availablePrintType } = req.body;
+
+//     if (availablePrintSize) {
+//         availablePrintSize = JSON.parse(availablePrintSize);
+//     }
+
+//     if (additionalInfo) {
+//         additionalInfo = JSON.parse(additionalInfo);
+//     }
+
+//     try {
+//         let amount = price;
+//         if (discount) {
+//             amount = price - (price * (discount / 100));
+//         }
+
+//         if (!req.file) {
+//             return res.status(404).send({ success: false, message: 'Product images not found ' })
+//         }
+
+//         // Upload image to AWS S3 bucket
+//         const uploadParams = {
+//             Bucket: 'your-bucket-name',
+//             Key: req.file.filename,
+//             Body: req.file.buffer
+//         };
+
+//         const s3Data = await s3.upload(uploadParams).promise();
+
+//         const imageUrl = s3Data.Location;
+
+//         const product = new Product({
+//             userImage, title, price, amount, discount, description, additionalInfo, availablePrintSize, category, availablePrintType, image: imageUrl,
+//         });
+
+//         await product.save();
+
+//         res.send({ success: true, product });
+
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).send({ success: false, error: error.message });
+//     }
+// });
 
 
 
@@ -116,6 +166,36 @@ router.delete("/delete/:id", adminAuth, async (req, res) => {
 });
 
 
+
+// router.delete("/delete/:id", adminAuth, async (req, res) => {
+//     try {
+//         // Fetch the product to get the image URL
+//         const product = await Product.findById(req.params.id);
+
+//         // Extract the image filename from the image URL
+//         const imageUrl = product.image;
+//         const filename = imageUrl.split('/').pop(); // Extract filename from URL
+
+//         // Delete the product from the database
+//         await Product.deleteOne({ _id: req.params.id });
+
+//         // Delete the image from the AWS S3 bucket
+//         const deleteParams = {
+//             Bucket: 'your-bucket-name',
+//             Key: filename
+//         };
+
+//         await s3.deleteObject(deleteParams).promise();
+
+//         res.status(200).send({ success: true, message: "Product and image deleted successfully" });
+//     } catch (error) {
+//         res.status(500).send({ success: false, message: error.message });
+//     }
+// });
+
+
+
+
 router.get("/all", async (req, res) => {
 
     try {
@@ -127,6 +207,7 @@ router.get("/all", async (req, res) => {
     }
 
 });
+
 
 router.get("/category/:categoryId", async (req, res) => {
     const category = req.params.categoryId; // Use req.params instead of req.query
