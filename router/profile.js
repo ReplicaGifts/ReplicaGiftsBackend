@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../model/user.model');
 const { userAuth } = require('../common/auth');
 const upload = require('../common/fileUpload');
+const { uploadToS3 } = require('../common/aws.config');
 
 
 router.post('/add-address', userAuth, upload.single('pic'), async (req, res) => {
@@ -16,6 +17,8 @@ router.post('/add-address', userAuth, upload.single('pic'), async (req, res) => 
         if (req.file) {
 
             Address.profile = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+
+            // Address.profile = await uploadToS3(req.file)
         }
 
         Address.billingDetails = { name, email, city, country, address, postcode, phone, state };

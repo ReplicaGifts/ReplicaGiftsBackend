@@ -1,8 +1,8 @@
 const router = require('express').Router();
 const { adminAuth } = require('../common/auth');
+const { uploadToS3 } = require('../common/aws.config');
 const upload = require('../common/fileUpload');
 const Category = require('../model/category.model');
-
 
 
 
@@ -16,7 +16,7 @@ router.post("/add-category", upload.single("thumbnail"), async (req, res) => {
         if (!req.file) return res.status(404).send({ message: "thubnail is required", success: false });
 
         let thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
-
+        // let thumbnail = await uploadToS3(req.file)
 
         const category = new Category({
             categoryName,
@@ -79,7 +79,7 @@ router.get('/all', async function (req, res) {
 
 router.put("/update/:id", upload.single("thumbnail"), async (req, res) => {
 
-    const { categoryName, frame } = req.body;
+    let { categoryName, frame } = req.body;
     const id = req.params.id;
 
     console.log(categoryName);
@@ -91,6 +91,7 @@ router.put("/update/:id", upload.single("thumbnail"), async (req, res) => {
         if (req.file) {
 
             thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+            // thumbnail = await uploadToS3(req.file);
         }
 
         if (!frame) {

@@ -6,7 +6,7 @@ const { userAuth } = require('../common/auth');
 const Frame = require('../model/frameDeatails.model');
 const upload = require('../common/fileUpload');
 const paymentController = require('../controllers/paymentController');
-
+const { uploadToS3 } = require('../common/aws.config');
 
 router.put("/frame-quantity/:id", async (req, res) => {
     const frameId = req.params.id;
@@ -15,7 +15,12 @@ router.put("/frame-quantity/:id", async (req, res) => {
 
     try {
 
-        let frame = await Frame.findById(frameId);
+        let frame = await Frame.findById(frameId).populate({
+            path: 'gifts',
+            populate: {
+                path: 'gift'
+            }
+        })
         const product = await Product.findById(frame.product).select(['quantity', 'amount']);
 
         if (!product) {
@@ -82,12 +87,15 @@ router.post("/add-frame", up, async (req, res) => {
 
     if ('userImage' in req.files) {
         userImage = `${req.protocol}://${req.get('host')}/${req.files['userImage'][0].filename}`;
+        // userImage = await Promise.all(uploadToS3(req.files['userImage'][0]));
     }
     let userImageModel;
 
     if ('userImageModel' in req.files) {
         userImageModel = `${req.protocol}://${req.get('host')}/${req.files['userImageModel'][0].filename}`;
+        // userImageModel = await Promise.all(uploadToS3(req.files['userImageModel'][0]));
     }
+
 
     try {
         const frame = new Frame({

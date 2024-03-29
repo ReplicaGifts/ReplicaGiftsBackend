@@ -12,3 +12,15 @@ const upload = multer({ storage: storage });
 
 
 module.exports = upload;
+
+
+
+// const multer = require('multer');
+
+// // Configure Multer for file upload
+// const upload = multer({
+//     dest: './public/uploads/',
+//     limits: { fileSize: 100000 },
+// })
+
+// module.exports = upload;

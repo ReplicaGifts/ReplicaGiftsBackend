@@ -5,6 +5,7 @@ const upload = require('../common/fileUpload');
 const FrameDetail = require('../model/frameDeatails.model');
 const Product = require('../model/product.model');
 const Gift = require('../model/gifts.model');
+const { uploadToS3 } = require('../common/aws.config');
 
 
 
@@ -63,11 +64,13 @@ router.post("/add-frame", userAuth, up, async (req, res) => {
 
     if ('userImage' in req.files) {
         userImage = `${req.protocol}://${req.get('host')}/${req.files['userImage'][0].filename}`;
+        // userImage = await Promise.all(uploadToS3(req.files['userImage'][0]));
     }
     let userImageModel;
 
     if ('userImageModel' in req.files) {
         userImageModel = `${req.protocol}://${req.get('host')}/${req.files['userImageModel'][0].filename}`;
+        // userImageModel = await Promise.all(uploadToS3(req.files['userImageModel'][0]));
     }
 
     try {
@@ -148,7 +151,7 @@ router.get("/orders", adminAuth, async (req, res) => {
             populate: {
                 path: 'gift'
             }
-        }).sort({ createdAt: -1 })
+        }).sort({ chreatedAt: -1 })
 
         // Split the orders array into two arrays
         const recentlyAdded = orders.filter(ord => !ord.isViewed); // Get the first 4 elements or less

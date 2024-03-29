@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { adminAuth } = require('../common/auth');
+const { uploadToS3 } = require('../common/aws.config');
 const upload = require('../common/fileUpload');
 const Gift = require('../model/gifts.model');
 
@@ -29,7 +30,9 @@ router.post('/', adminAuth, upload.single("thumbnail"), async (req, res) => {
         if (!req.file) {
             res.status(404).send({ success: false, message: "Thumbnail not found" });
         }
-        let thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`
+        let thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+
+        // let thumbnail = await uploadToS3(req.file);
         const gift = new Gift({
             name, quantity, price, thumbnail
         });
@@ -53,6 +56,7 @@ router.put('/update/:id', adminAuth, upload.single("thumbnail"), async (req, res
     try {
         if (req.file) {
             thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`
+            // thumbnail = await uploadToS3(req.file)
         }
         const gift = await Gift.findByIdAndUpdate(id, {
             name, quantity, price, thumbnail
