@@ -2,6 +2,7 @@ const payment_route = require('express').Router();
 const Frame = require('../model/frameDeatails.model');
 const User = require('../model/user.model');
 const Product = require('../model/product.model');
+const Gift = require('../model/gifts.model');
 
 const paymentController = require('../controllers/paymentController');
 const { userAuth } = require('../common/auth');
@@ -35,6 +36,16 @@ payment_route.post('/verifyPayment', userAuth, async (req, res) => {
                 frame.status = true;
                 frame.orderId = orderId;
                 frame.chreatedAt = Date.now();
+
+                for (const g of frame.gifts) {
+                    const gift = await Gift.findById(g.gift);
+
+                    gift.quantity -= +q.quantity;
+
+                    await gift.save();
+
+                }
+
                 // Remove frame from shopping cart
                 const cartIndex = cart.shoppingCart.findIndex(item => item.userWant.toString() === frame._id.toString());
                 if (cartIndex !== -1) {

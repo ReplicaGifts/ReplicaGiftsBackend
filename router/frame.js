@@ -169,7 +169,6 @@ router.get("/orders", adminAuth, async (req, res) => {
 router.get('/notify', async function (req, res) {
     try {
         const count = await FrameDetail.countDocuments({ status: true, notify: false });
-        console.log(count, "contur::");
         res.json({ count });
     } catch (error) {
         console.error("Error:", error);
@@ -252,7 +251,87 @@ router.put('/:id/tracking-id', adminAuth, async (req, res) => {
     } catch (error) {
         res.status(500).send({ error: error.message, success: false });
     }
-})
+});
+
+
+
+router.put('/gift-quantity/:id', async (req, res) => {
+
+    const { gift, quantity } = req.body;
+
+    try {
+
+        const frame = await FrameDetail.findById(req.params.id).populate({
+            path: 'gifts',
+            populate: {
+                path: 'gift'
+            }
+        }).populate('product');
+
+
+        let total = 0;
+
+        for (const g of frame.gifts) {
+            if (g.gift._id == gift) {
+                g.quantity = quantity;
+                if (g.quantity > g.gift.quantity) {
+                    return res.status(400).send({ message: 'Quantity is out of range', status: 400, success: false });
+                }
+
+                g.total = quantity * g.gift.price;
+            }
+            total += g.total;
+        }
+
+
+        total += frame.product.amount * frame.quantity;
+
+        frame.totalAmount = total;
+
+        await frame.save();
+
+        res.send({ success: true, message: 'Gift Quantity Updated', frame });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
+
+router.delete('/gift', async function (req, res) {
+    const frameId = req.query.frameId;
+    const giftId = req.query.giftId;
+    try {
+        const frame = await FrameDetail.findById(frameId).populate('product').populate({ path: 'gifts', populate: { path: gift } });
+
+        let total = 0;
+
+        frame.gifts = await Promise.all(frame.gifts.filter(gift => {
+
+            if (gift.gift.toString() === giftId) {
+
+                return false;
+            } else {
+
+                total += gift.total;
+                console.log(total, giftId);
+                return true;
+            }
+
+        }));
+
+        total += frame.product.amount * frame.quantity;
+
+        frame.totalAmount = total;
+
+        await frame.save();
+
+        res.send({ success: true, message: 'Gift Quantity Updated', frame });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
 
 module.exports = router;
 

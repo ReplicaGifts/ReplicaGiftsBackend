@@ -212,7 +212,6 @@ router.get('/contact', async (req, res) => {
 router.get('/notify', async function (req, res) {
     try {
         const count = await Contact.countDocuments({ notify: false });
-        console.log(count, "asdfghjasdfg");
         res.json({ count });
     } catch (error) {
         console.error("Error:", error);
