@@ -20,7 +20,10 @@ const guestRouter = require('./router/guest');
 const app = express();
 const port = 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: ['/http://localhost:3000', 'https://replica-gifts-frontend.vercel.app/', '/'],
+    methods: ['GET', 'POST'],
+}));
 app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
