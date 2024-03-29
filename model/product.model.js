@@ -8,6 +8,7 @@ module.exports = mongoose.model('Product', {
     discount: { type: Number, required: true },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'category', required: true },
     amount: { type: Number, required: true },
+    // quantity: { type: Number, required: true}
     description: { type: String, required: true },
     additionalInfo: [{ title: String, description: String }],
     totalrating: { type: Number, default: 0 },
@@ -16,11 +17,12 @@ module.exports = mongoose.model('Product', {
     createdAt: { type: Date, default: Date.now() },
     noOfPerchases: { type: Number, default: 0 },
     userImage: { type: Boolean, default: false },
-    reviews: [{
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-        rating: { type: Number, default: 0 },
-        comment: {
-            type: String, required: true
-        }
-    }]
+    frame: String,
+    // reviews: [{
+    //     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    //     rating: { type: Number, default: 0 },
+    //     comment: {
+    //         type: String, required: true
+    //     }
+    // }]
 });

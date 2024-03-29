@@ -11,6 +11,7 @@ module.exports = mongoose.model('FrameDetail', {
     guest: String,
 
     userImage: { type: String },
+    userImageModel: { type: String },
     printType: { type: String, required: true },
     size: { type: String, required: true },
     quantity: { type: Number, required: true },

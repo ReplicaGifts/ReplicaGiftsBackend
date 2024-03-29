@@ -6,5 +6,6 @@ module.exports = mongoose.model("category", {
     thumbnail: { type: String, requrired: true },
     printType: { type: Boolean, default: false },
     cheartedAt: { type: Date, default: Date.now() },
+    frame: { type: Boolean, default: false }
 
 })

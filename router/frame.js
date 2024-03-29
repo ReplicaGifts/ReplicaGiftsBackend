@@ -31,7 +31,13 @@ router.get('/all', adminAuth, async (req, res) => {
 });
 
 
-router.post("/add-frame", userAuth, upload.single('userImage'), async (req, res) => {
+const up = upload.fields([
+    { name: 'userImage', maxCount: 1 },
+    { name: 'userImageModel', maxCount: 1 },
+])
+
+
+router.post("/add-frame", userAuth, up, async (req, res) => {
 
     let { product, printType, size, quantity, gifts } = req.body;
 
@@ -55,13 +61,18 @@ router.post("/add-frame", userAuth, upload.single('userImage'), async (req, res)
 
     let userImage;
 
-    if (req.file) {
-        userImage = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+    if ('userImage' in req.files) {
+        userImage = `${req.protocol}://${req.get('host')}/${req.files['userImage'][0].filename}`;
+    }
+    let userImageModel;
+
+    if ('userImageModel' in req.files) {
+        userImageModel = `${req.protocol}://${req.get('host')}/${req.files['userImageModel'][0].filename}`;
     }
 
     try {
         const frame = new FrameDetail({
-            product, printType, size, quantity, userImage, user: req.user.id, gifts, totalAmount
+            product, printType, size, quantity, userImage, user: req.user.id, gifts, totalAmount, userImageModel
         });
 
         await frame.save();
@@ -121,7 +132,7 @@ router.get("/get-frame/:id", async function (req, res) {
 router.get("/orders", adminAuth, async (req, res) => {
     try {
 
-        const result = await FrameDetail.updateMany(
+        await FrameDetail.updateMany(
             { status: true },
             { $set: { notify: true } }
         );
@@ -152,22 +163,9 @@ router.get("/orders", adminAuth, async (req, res) => {
     }
 });
 
-
-
-router.post('/notified/:id', adminAuth, async (req, res) => {
-    try {
-        const frame = await FrameDetail.findByIdAndUpdate(req.params.id, { $set: { notify: true } });
-        console.log('f')
-        res.send({ success: true, frame });
-    } catch (error) {
-        console.log(error)
-        res.status(500).send({ error: error, success: false });
-    }
-})
-
 router.get('/notify', async function (req, res) {
     try {
-        const count = await FrameDetail.countDocuments({ notify: false });
+        const count = await FrameDetail.countDocuments({ status: true, notify: false });
         console.log(count, "contur::");
         res.json({ count });
     } catch (error) {

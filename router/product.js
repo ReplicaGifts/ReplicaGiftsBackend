@@ -4,9 +4,12 @@ const upload = require('../common/fileUpload');
 const Product = require('../model/product.model');
 const Category = require('../model/category.model');
 
+const up = upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'frame', maxCount: 1 },
+])
 
-
-router.post("/add-product", upload.single("image"), async (req, res) => {
+router.post("/add-product", up, async (req, res) => {
 
     let { userImage, title, price, discount, description, category, additionalInfo, availablePrintSize, availablePrintType } = req.body;
 
@@ -28,16 +31,20 @@ router.post("/add-product", upload.single("image"), async (req, res) => {
         }
 
 
-        if (!req.file) {
+        if (!'image' in req.files) {
             return res.status(404).send({ success: false, message: 'Product images not found ' })
         }
 
-        const image = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+        const image = `${req.protocol}://${req.get('host')}/${req.files['image'][0].filename}`;
 
+        let frame = '';
 
+        if ('frame' in req.files) {
+            frame = `${req.protocol}://${req.get('host')}/${req.files['frame'][0].filename}`;
+        }
 
         const product = new Product({
-            userImage, title, price, amount, discount, description, additionalInfo, availablePrintSize, category, availablePrintType, image,
+            userImage, title, price, amount, discount, description, additionalInfo, frame, availablePrintSize, category, availablePrintType, image,
         });
 
         await product.save();
@@ -55,8 +62,8 @@ router.post("/add-product", upload.single("image"), async (req, res) => {
 
 
 
-router.put("/update/:id", adminAuth, upload.single("image"), async (req, res) => {
-    let { userImage, title, price, discount, description, category, additionalInfo, availablePrintSize, availablePrintType, image } = req.body;
+router.put("/update/:id", adminAuth, up, async (req, res) => {
+    let { userImage, title, price, discount, description, category, additionalInfo, availablePrintSize, availablePrintType, image, frame } = req.body;
     const id = req.params.id;
 
     console.log(category)
@@ -78,15 +85,19 @@ router.put("/update/:id", adminAuth, upload.single("image"), async (req, res) =>
         }
 
 
-        if (req.file) {
-            image = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+        if ('image' in req.files) {
+            image = `${req.protocol}://${req.get('host')}/${req.files['image'][0].filename}`;
         }
 
 
 
+        if ('frame' in req.files) {
+            frame = `${req.protocol}://${req.get('host')}/${req.files['frame'][0].filename}`;
+        }
+
         const product = await Product.findByIdAndUpdate(id, {
             $set: {
-                userImage, title, price, amount, discount, description, additionalInfo, category: category, availablePrintSize, availablePrintType, image
+                userImage, title, price, amount, discount, description, additionalInfo, category: category, availablePrintSize, availablePrintType, image, frame
             }
         }, { new: true });
 

@@ -9,15 +9,18 @@ const Category = require('../model/category.model');
 
 router.post("/add-category", upload.single("thumbnail"), async (req, res) => {
 
-    const { categoryName, description } = req.body;
+    const { categoryName, frame } = req.body;
 
     try {
 
+        if (!req.file) return res.status(404).send({ message: "thubnail is required", success: false });
+
         let thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+
 
         const category = new Category({
             categoryName,
-
+            frame,
             thumbnail
         });
 
@@ -76,7 +79,7 @@ router.get('/all', async function (req, res) {
 
 router.put("/update/:id", upload.single("thumbnail"), async (req, res) => {
 
-    const { categoryName } = req.body;
+    const { categoryName, frame } = req.body;
     const id = req.params.id;
 
     console.log(categoryName);
@@ -90,7 +93,11 @@ router.put("/update/:id", upload.single("thumbnail"), async (req, res) => {
             thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
         }
 
-        const category = await Category.findByIdAndUpdate(id, { $set: { categoryName, thumbnail } }, { new: true });
+        if (!frame) {
+            frame = false;
+        }
+
+        const category = await Category.findByIdAndUpdate(id, { $set: { categoryName, thumbnail, frame } }, { new: true });
 
         res.send({ success: true, message: "category updated succesfully", category });
 

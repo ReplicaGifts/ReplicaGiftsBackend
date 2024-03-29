@@ -49,7 +49,14 @@ router.put("/frame-quantity/:id", async (req, res) => {
     }
 });
 
-router.post("/add-frame", upload.single('userImage'), async (req, res) => {
+const up = upload.fields([
+    { name: 'userImage', maxCount: 1 },
+    { name: 'userImageModel', maxCount: 1 },
+])
+
+
+
+router.post("/add-frame", up, async (req, res) => {
 
     let { product, printType, size, quantity, gifts, user } = req.body;
 
@@ -73,13 +80,18 @@ router.post("/add-frame", upload.single('userImage'), async (req, res) => {
 
     let userImage;
 
-    if (req.file) {
-        userImage = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+    if ('userImage' in req.files) {
+        userImage = `${req.protocol}://${req.get('host')}/${req.files['userImage'][0].filename}`;
+    }
+    let userImageModel;
+
+    if ('userImageModel' in req.files) {
+        userImageModel = `${req.protocol}://${req.get('host')}/${req.files['userImageModel'][0].filename}`;
     }
 
     try {
         const frame = new Frame({
-            product, printType, size, quantity, userImage, guest: user, gifts, totalAmount
+            product, printType, size, quantity, userImage, guest: user, gifts, totalAmount, userImageModel
         });
 
         await frame.save();
