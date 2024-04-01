@@ -5,7 +5,7 @@ const upload = require('../common/fileUpload');
 const FrameDetail = require('../model/frameDeatails.model');
 const Product = require('../model/product.model');
 const Gift = require('../model/gifts.model');
-const { uploadToS3 } = require('../common/aws.config');
+const { uploadToS3, deleteFromS3 } = require('../common/aws.config');
 
 
 
@@ -155,9 +155,10 @@ router.get("/orders", adminAuth, async (req, res) => {
 
         // Split the orders array into two arrays
         const recentlyAdded = orders.filter(ord => !ord.isViewed); // Get the first 4 elements or less
-        const remainingOrders = orders.filter(ord => ord.isViewed);
+        const remainingOrders = orders.filter(ord => ord.isViewed && ord.deliveryStatus !== 'Delivered');
+        const delivered = orders.filter(ord => ord.deliveryStatus === 'Delivered');
 
-        res.send({ recentlyAdded, remainingOrders, orders });
+        res.send({ recentlyAdded, remainingOrders, delivered, orders });
 
     } catch (error) {
 
@@ -302,14 +303,13 @@ router.delete('/gift', async function (req, res) {
     const frameId = req.query.frameId;
     const giftId = req.query.giftId;
     try {
-        const frame = await FrameDetail.findById(frameId).populate('product').populate({ path: 'gifts', populate: { path: gift } });
+        const frame = await FrameDetail.findById(frameId).populate('product');
 
         let total = 0;
 
         frame.gifts = await Promise.all(frame.gifts.filter(gift => {
 
             if (gift.gift.toString() === giftId) {
-
                 return false;
             } else {
 
@@ -327,6 +327,23 @@ router.delete('/gift', async function (req, res) {
         await frame.save();
 
         res.send({ success: true, message: 'Gift Quantity Updated', frame });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
+router.delete('/delete/:id', async (req, res) => {
+    try {
+        const frame = await FrameDetail.findByIdAndDelete(req.params.id);
+
+        if (frame.userImage) {
+            // await deleteFromS3(frame.userImage);
+        }
+        if (frame.userImageModel) {
+            // await deleteFromS3(frame.userImageModel);
+        }
+        res.send({ success: true, message: 'deleted successfully' });
 
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });

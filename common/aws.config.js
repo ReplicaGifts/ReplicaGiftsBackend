@@ -27,8 +27,28 @@ async function uploadToS3(file) {
 }
 
 
+async function deleteFromS3(file) {
+
+    const filename = file.split('/').pop(); // Extract filename from URL
+
+    const deleteParams = {
+        Bucket: 'your-bucket-name',
+        Key: filename
+    };
+
+    try {
+
+        await s3.deleteObject(deleteParams).promise();
+        return true;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+}
+
+
 
 // Export the AWS S3 instance
 module.exports = {
-    s3, uploadToS3
+    s3, uploadToS3, deleteFromS3
 }

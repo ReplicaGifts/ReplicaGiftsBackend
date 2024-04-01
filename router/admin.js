@@ -196,7 +196,7 @@ router.get('/contact', async (req, res) => {
 
         await Contact.updateMany({ notify: true });
 
-        const contact = await Contact.find();
+        const contact = await Contact.find().sort({ chreatedAt: -1 })
 
         const recentlyAdded = contact.filter(contact => !contact.isViewed);
         const viewed = contact.filter(contact => contact.isViewed);
@@ -229,6 +229,18 @@ router.post('/viewed/:id', adminAuth, async (req, res) => {
         res.status(500).send({ error: error, success: false });
     }
 });
+
+router.delete('/contact/:id', async function (req, res) {
+    try {
+        const contact = await Contact.findByIdAndDelete(req.params.id);
+
+
+        res.send({ success: true, message: 'deleted successfully' });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+})
 
 
 module.exports = router;

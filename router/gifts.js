@@ -70,16 +70,19 @@ router.put('/update/:id', adminAuth, upload.single("thumbnail"), async (req, res
     }
 });
 
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", async (req, res) => {
 
 
-    Gift.deleteOne({ _id: req.params.id }).then(() => {
+    try {
+        const gifts = await Gift.findByIdAndDelete(req.params.id);
 
-        res.status(200).send({ success: true, message: "gift deleted successfully" });
-    }).catch(err => {
 
-        res.status(500).send({ success: false, message: err.message });
-    });
+        // await deleteFromS3(gifts.thumbnail);
+        res.send({ success: true, message: 'deleted successfully' });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
 
 
 });

@@ -3,8 +3,10 @@ const { adminAuth, userAuth } = require('../common/auth');
 const upload = require('../common/fileUpload');
 const Product = require('../model/product.model');
 const Category = require('../model/category.model');
+const Orders = require('../model/frameDeatails.model');
+const User = require('../model/user.model');
 const { s3 } = require('../common/aws.config');
-const { uploadToS3 } = require('../common/aws.config');
+const { uploadToS3, deleteFromS3 } = require('../common/aws.config');
 
 const up = upload.fields([
     { name: 'image', maxCount: 1 },
@@ -135,11 +137,13 @@ router.put("/update/:id", adminAuth, up, async (req, res) => {
         if (discount) {
             amount = price - (price * (discount / 100));
         }
+        const product = await Product.findById(id);
 
 
         if ('image' in req.files) {
             image = `${req.protocol}://${req.get('host')}/${req.files['image'][0].filename}`;
             //  image = await Promise.all(uploadToS3(req.files['image'][0]));
+            // await deleteFromS3(product.image);
 
 
         }
@@ -150,13 +154,27 @@ router.put("/update/:id", adminAuth, up, async (req, res) => {
             // frame = await Promise.all(uploadToS3(req.files['frame'][0]));
 
             frame = `${req.protocol}://${req.get('host')}/${req.files['frame'][0].filename}`;
+            // await deleteFromS3(product.frame);
         }
 
-        const product = await Product.findByIdAndUpdate(id, {
-            $set: {
-                userImage, title, price, amount, discount, description, additionalInfo, category: category, availablePrintSize, availablePrintType, image, frame
-            }
-        }, { new: true });
+
+        product.userImage = userImage;
+        product.title = title;
+        product.price = price;
+        product.amount = amount;
+        product.discount = discount;
+        product.description = description;
+        product.additionalInfo = additionalInfo;
+        product.category = category;
+        product.availablePrintSize = availablePrintSize;
+        product.availablePrintType = availablePrintType;
+
+
+        product.image = image;
+        product.frame = frame;
+
+        await product.save();
+
 
         console.log(product);
 
@@ -173,9 +191,69 @@ router.put("/update/:id", adminAuth, up, async (req, res) => {
 router.delete("/delete/:id", adminAuth, async (req, res) => {
     try {
 
-        const product = await Product.deleteOne({ _id: req.params.id });
+        const order = await Orders.find({ product: req.params.id });
 
-        res.status(200).send({ success: true, message: "Product deleted successfully" });
+        let ordered_user = await Promise.all(order.filter((product) => {
+            if (product.status) {
+                return product;
+            }
+            return false;
+        }));
+
+
+
+        if (ordered_user.length > 0) {
+            return res.send({ success: false, message: 'This product has been ordered by some users', ordered_user });
+        } else {
+            await Orders.deleteMany({ product: req.params.id });
+            order.map(async (product) => {
+                // if (product.status) {
+                //     ordered_user.push(product.deliveryAddress);
+                // }
+
+                if (product.user) {
+                    let user = await User.findById(product.user);
+
+                    user.shoppingCart = await Promise.all(user.shoppingCart.filter(shoppingCart => {
+                        if (shoppingCart.productId.toString() === req.params.id) {
+                            return false;
+                        }
+                        return true;
+                    }));
+
+
+                    user.wishWist = await Promise.all(user.wishList.filter(wish => {
+                        if (wish.toString() === req.params.id) {
+                            return false;
+                        }
+                        return true;
+                    }));
+
+                    await user.save();
+                }
+
+                // if (product.userImage) {
+                //     // console.log(await deleteFromS3(product.userImage));
+
+                // }
+
+                // if (product.userImageModel) {
+                //     // console.log(await deleteFromS3(product.userImageModel));
+
+                // }
+
+            });
+            const product = await Product.findByIdAndDelete({ _id: req.params.id });
+
+            // console.log(await deleteFromS3(product.image));
+
+            return res.status(200).send({ success: true, message: "Product deleted successfully" });
+        }
+
+
+
+
+
 
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });

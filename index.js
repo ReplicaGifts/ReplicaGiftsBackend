@@ -20,24 +20,8 @@ const guestRouter = require('./router/guest');
 const app = express();
 const port = 3000;
 
-const allowedOrigins = ['http://localhost:4200', 'http://localhost:3000', 'https://replica-gifts-frontend.vercel.app', '*'];
 
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-
-    // Check if the origin is included in the allowedOrigins array
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-
-    // Add other CORS headers if needed
-    next();
-});
-
-app.use(cors({
-    origin: ['http://localhost:4200', 'http://localhost:3000', 'https://replica-gifts-frontend.vercel.app', '*'],
-    methods: ['GET', 'POST', 'HEAD'],
-}));
+app.use(cors());
 
 app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(bodyParser.json());

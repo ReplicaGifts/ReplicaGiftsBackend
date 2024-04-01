@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { adminAuth } = require('../common/auth');
-const { uploadToS3 } = require('../common/aws.config');
+const { uploadToS3, deleteFromS3 } = require('../common/aws.config');
 const upload = require('../common/fileUpload');
 const Category = require('../model/category.model');
 
@@ -87,18 +87,23 @@ router.put("/update/:id", upload.single("thumbnail"), async (req, res) => {
     try {
 
         let thumbnail = req.body.thumbnail;
+        const category = await Category.findById(id);
 
         if (req.file) {
 
             thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
             // thumbnail = await uploadToS3(req.file);
+            await deleteFromS3(category.thumbnail);
         }
 
         if (!frame) {
             frame = false;
         }
 
-        const category = await Category.findByIdAndUpdate(id, { $set: { categoryName, thumbnail, frame } }, { new: true });
+
+        category.categoryName = categoryName;
+        category.thumbnail = thumbnail;
+        category.frame = frame;
 
         res.send({ success: true, message: "category updated succesfully", category });
 
@@ -117,7 +122,9 @@ router.delete("/delete/:id", adminAuth, async function (req, res) {
 
     try {
 
-        await Category.deleteOne({ _id: id });
+        await Category.findByIdAndDelete(id);
+
+        await deleteFromS3(Category.thumbnail);
 
         res.send({ success: true, message: "category deleted successfully" });
 
@@ -135,6 +142,7 @@ router.post('/printType', upload.single("thumbnail"), async (req, res) => {
     try {
 
         let thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+        // let thumbnail = await uploadToS3(req.file);
 
         const category = new Category({
             categoryName,
