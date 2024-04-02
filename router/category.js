@@ -93,7 +93,7 @@ router.put("/update/:id", upload.single("thumbnail"), async (req, res) => {
 
             thumbnail = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
             // thumbnail = await uploadToS3(req.file);
-            await deleteFromS3(category.thumbnail);
+            // await deleteFromS3(category.thumbnail);
         }
 
         if (!frame) {
@@ -124,7 +124,7 @@ router.delete("/delete/:id", adminAuth, async function (req, res) {
 
         await Category.findByIdAndDelete(id);
 
-        await deleteFromS3(Category.thumbnail);
+        // await deleteFromS3(Category.thumbnail);
 
         res.send({ success: true, message: "category deleted successfully" });
 
