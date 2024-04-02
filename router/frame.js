@@ -119,6 +119,11 @@ router.get("/get-frame/:id", async function (req, res) {
             populate: {
                 path: 'gift'
             }
+        }).populate({
+            path: 'product',
+            populate: {
+                path: 'category'
+            }
         });
 
         res.send(frame);
