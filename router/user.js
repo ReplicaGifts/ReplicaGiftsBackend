@@ -38,7 +38,8 @@ router.post(
                 email
             });
             if (user) {
-                return res.status(400).json({
+                return res.status(200).json({
+                    success: false,
                     msg: "User Already Exists"
                 });
             }
@@ -70,12 +71,12 @@ router.post(
             jwt.sign(
                 payload,
                 process.env.SECRET_KEY,
-                {
-                    expiresIn: '30d'
-                },
+
                 (err, token) => {
                     if (err) throw err;
                     res.status(200).json({
+                        success: true,
+
                         token
                     });
                 }
@@ -117,13 +118,15 @@ router.post(
             });
 
             if (!user)
-                return res.status(400).json({
-                    message: "User Not Exist"
+                return res.status(200).json({
+                    success: false,
+                    message: "User Not Exist."
                 });
 
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch)
-                return res.status(400).json({
+                return res.status(200).json({
+                    success: false,
                     message: "Incorrect Password !"
                 });
 
@@ -136,12 +139,10 @@ router.post(
             jwt.sign(
                 payload,
                 process.env.SECRET_KEY,
-                {
-                    expiresIn: '30d'
-                },
                 (err, token) => {
                     if (err) throw err;
                     res.status(200).json({
+                        success: true,
                         token
                     });
                 }
