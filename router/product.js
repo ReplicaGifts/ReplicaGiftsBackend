@@ -438,6 +438,7 @@ router.get("/filter", async (req, res) => {
         const response = {
             error: false,
             total: totalPage,
+            count: total,
             page: page + 1,
             limit,
             category: categories,
