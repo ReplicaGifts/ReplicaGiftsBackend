@@ -31,6 +31,8 @@ router.post("/add-product", up, async (req, res) => {
             amount = price - (price * (discount / 100));
         }
 
+        amount = parseFloat(amount.toFixed(2));
+
 
         if (!'image' in req.files) {
             return res.status(404).send({ success: false, message: 'Product images not found ' })
@@ -137,6 +139,9 @@ router.put("/update/:id", adminAuth, up, async (req, res) => {
         if (discount) {
             amount = price - (price * (discount / 100));
         }
+
+        amount = parseFloat(amount.toFixed(2));
+
         const product = await Product.findById(id);
 
 
@@ -420,7 +425,6 @@ router.get("/filter", async (req, res) => {
             query.discount = { $gte: discount };
         }
 
-        console.log(query);
 
         const product = await Product.find(query)
             .sort(sortBy)
