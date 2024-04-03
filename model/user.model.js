@@ -44,6 +44,9 @@ module.exports = mongoose.model("User", {
         date: { type: Date, default: Date.now() },
         status: { type: String, required: true },
         total: Number
-    }]
+    }],
+
+    OTP: Number,
+    OTPCreatedAt: Date,
 
 });

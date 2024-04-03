@@ -204,5 +204,27 @@ router.post('/edit-username', userAuth, async (req, res) => {
 
 
 
+router.put('/reset-password', async (req, res) => {
+
+    const password = req.body.password;
+    const email = req.body.email;
+
+
+    try {
+
+        const salt = await bcrypt.genSalt(10);
+        let hashPass = await bcrypt.hash(password, salt);
+
+        const user = await User.findOneAndUpdate({ email }, { $set: { password: hashPass } });
+
+        res.send({ success: true, message: 'password reset successfully' })
+
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: "Couldn't save profile", error: error.message });
+
+    }
+});
+
 
 module.exports = router;

@@ -7,6 +7,7 @@ const Frame = require('../model/frameDeatails.model');
 const upload = require('../common/fileUpload');
 const paymentController = require('../controllers/paymentController');
 const { uploadToS3 } = require('../common/aws.config');
+const Gift = require('../model/gifts.model');
 
 router.put("/frame-quantity/:id", async (req, res) => {
     const frameId = req.params.id;
@@ -158,6 +159,15 @@ router.post('/verifyPayment', async (req, res) => {
                 frame.orderId = orderId;
                 frame.chreatedAt = Date.now();
 
+
+                for (const g of frame.gifts) {
+                    const gift = await Gift.findById(g.gift);
+
+                    gift.quantity -= +q.quantity;
+
+                    await gift.save();
+
+                }
 
                 // Update product quantity
                 const product = await Product.findById(frame.product);
