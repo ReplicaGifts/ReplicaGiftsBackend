@@ -38,17 +38,48 @@ router.post('/forgot-password', async (req, res) => {
                 subject: 'Sending Email using Node.js',
                 html: `
                 <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Email Content</title>
-                </head>
-                <body>
-                    <p>That was easy!</p>
-                    <p>Your OTP is: <strong style='color:red;'>${await generateOTP(user._id)}</strong>.</p>
-                </body>
-                </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password OTP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .otp {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+        a {
+            color: rgb(255, 89, 0);
+            text-decoration: none;
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>You have requested to reset your password. Use the OTP below to verify your identity:</p>
+        <p class="otp">${await generateOTP(user._id)}</p>
+        <p>If you didn't request a password reset, please ignore this email.</p>
+        <a href="https://replica-gifts-frontend.vercel.app/" target="_blank">Replica Gifts</a>
+    </div>
+</body>
+</html>
+
             `
             };
 
@@ -127,17 +158,51 @@ router.post('/verify-email', async (req, res) => {
             subject: 'Sending Email using Node.js',
             html: `
                 <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Email Content</title>
-                </head>
-                <body>
-                    <h1>Verify your profile</h1>
-                    <p>Your OTP is: <strong style='color:red;'>${OTP}</strong>.</p>
-                </body>
-                </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .otp {
+            font-size: 24px;
+            color: #007bff; /* Blue color */
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+        a {
+            color: rgb(255, 89, 0);
+            text-decoration: none;
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Verify Your Profile</h1>
+        <p>Please use the OTP below to verify your profile:</p>
+        <p class="otp">${OTP}</p>
+        <p>If you didn't request this OTP, please ignore this email.</p>
+        <a href="https://replica-gifts-frontend.vercel.app/" target="_blank">Replica Gifts</a>
+
+    </div>
+</body>
+</html>
+
             `
         };
 
