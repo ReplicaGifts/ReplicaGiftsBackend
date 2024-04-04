@@ -35,13 +35,13 @@ router.post("/add-cart/:id", userAuth, async (req, res) => {
 
         console.log(total, product.amount, quantity);
         // Check if the product is already in the cart
-        const existingItem = user.shoppingCart.find(item => item.productId.toString() === productId);
-        if (existingItem) {
-            existingItem.quantity += quantity;
-            existingItem.total += total;
-        } else {
-            user.shoppingCart.push({ productId, quantity, total, userWant: frameId });
-        }
+        // const existingItem = user.shoppingCart.find(item => item.productId.toString() === productId);
+        // if (existingItem) {
+        //     existingItem.quantity += quantity;
+        //     existingItem.total += total;
+        // } else {
+        user.shoppingCart.push({ productId, quantity, total, userWant: frameId });
+        // }
 
         await user.save();
 
