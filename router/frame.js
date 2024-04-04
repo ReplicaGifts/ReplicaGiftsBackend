@@ -63,13 +63,13 @@ router.post("/add-frame", userAuth, up, async (req, res) => {
     let userImage;
 
     if ('userImage' in req.files) {
-        userImage = `${req.protocol}://${req.get('host')}/${req.files['userImage'][0].filename}`;
+        userImage = `https://${req.get('host')}/${req.files['userImage'][0].filename}`;
         // userImage = await Promise.all(uploadToS3(req.files['userImage'][0]));
     }
     let userImageModel;
 
     if ('userImageModel' in req.files) {
-        userImageModel = `${req.protocol}://${req.get('host')}/${req.files['userImageModel'][0].filename}`;
+        userImageModel = `https://${req.get('host')}/${req.files['userImageModel'][0].filename}`;
         // userImageModel = await Promise.all(uploadToS3(req.files['userImageModel'][0]));
     }
 

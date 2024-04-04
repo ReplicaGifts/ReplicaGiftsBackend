@@ -38,14 +38,14 @@ router.post("/add-product", up, async (req, res) => {
             return res.status(404).send({ success: false, message: 'Product images not found ' })
         }
         // const image = await Promise.all(uploadToS3(req.files['image'][0]));
-        const image = `${req.protocol}://${req.get('host')}/${req.files['image'][0].filename}`;
+        const image = `https://${req.get('host')}/${req.files['image'][0].filename}`;
 
         let frame = '';
 
         if ('frame' in req.files) {
             // frame = await Promise.all(uploadToS3(req.files['frame'][0]));
 
-            frame = `${req.protocol}://${req.get('host')}/${req.files['frame'][0].filename}`;
+            frame = `https://${req.get('host')}/${req.files['frame'][0].filename}`;
         }
 
         const product = new Product({
@@ -146,7 +146,7 @@ router.put("/update/:id", adminAuth, up, async (req, res) => {
 
 
         if ('image' in req.files) {
-            image = `${req.protocol}://${req.get('host')}/${req.files['image'][0].filename}`;
+            image = `https://${req.get('host')}/${req.files['image'][0].filename}`;
             //  image = await Promise.all(uploadToS3(req.files['image'][0]));
             // await deleteFromS3(product.image);
 
@@ -158,7 +158,7 @@ router.put("/update/:id", adminAuth, up, async (req, res) => {
         if ('frame' in req.files) {
             // frame = await Promise.all(uploadToS3(req.files['frame'][0]));
 
-            frame = `${req.protocol}://${req.get('host')}/${req.files['frame'][0].filename}`;
+            frame = `https://${req.get('host')}/${req.files['frame'][0].filename}`;
             // await deleteFromS3(product.frame);
         }
 
