@@ -40,7 +40,8 @@ payment_route.post('/verifyPayment', userAuth, async (req, res) => {
                 for (const g of frame.gifts) {
                     const gift = await Gift.findById(g.gift);
 
-                    gift.quantity -= +q.quantity;
+                    console.log(gift)
+                    gift.quantity -= +g.quantity;
 
                     await gift.save();
 
