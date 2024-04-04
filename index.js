@@ -22,7 +22,12 @@ const mailRouter = require('./router/mail');
 const app = express();
 const port = 3000;
 
-
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Allow access from any origin
+    res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE', 'HEAD'); // Allow the specified methods
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Allow the specified headers
+    next();
+});
 
 app.use(cors());
 
