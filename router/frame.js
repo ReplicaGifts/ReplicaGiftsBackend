@@ -199,7 +199,7 @@ router.post('/viewed/:id', adminAuth, async function (req, res) {
 router.get('/user-orders', userAuth, async function (req, res) {
 
     try {
-        const orders = await FrameDetail.find({ user: req.user.id }).populate({
+        const orders = await FrameDetail.find({ user: req.user.id, status:true }).populate({
             path: 'user',
             select: '-password'
         }).populate({

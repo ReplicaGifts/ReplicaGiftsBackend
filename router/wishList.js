@@ -26,7 +26,14 @@ router.post("/add-wish", userAuth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
 
-        user.wishList.push(req.body.id);
+        if (user.wishList.includes(req.body.id)) {
+            user.wishList = user.wishList.filter(wish => wish.toString() !== req.body.id);
+        } else {
+
+            user.wishList.push(req.body.id);
+        }
+
+        console.log(user.wishList)
 
         await user.save();
 
