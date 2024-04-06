@@ -398,7 +398,8 @@ router.get("/filter", async (req, res) => {
         const order = req.query.order || 1;
         let category = req.query.category || "All";
         const rating = req.query.rating ? parseInt(req.query.rating) : undefined;
-        const discount = req.query.discount ? parseInt(req.query.discount) : undefined;
+        const discountMin = parseInt(req.query.discountMin) || 0;
+        const discountMax = parseInt(req.query.discountMax) || 100;
         const min = parseInt(req.query.min) || 0;
         const max = parseInt(req.query.max) || Number.MAX_SAFE_INTEGER;
 
@@ -411,6 +412,7 @@ router.get("/filter", async (req, res) => {
         const query = {
             title: { $regex: search, $options: "i" },
             amount: { $gte: min, $lte: max },
+            discount: { $gte: discountMin, $lte: discountMax },
             $or: [
                 { availablePrintType: { $in: category } },
                 { category: { $in: category } }
@@ -419,10 +421,6 @@ router.get("/filter", async (req, res) => {
 
         if (rating !== undefined) {
             query.totalrating = rating;
-        }
-
-        if (discount !== undefined) {
-            query.discount = { $gte: discount };
         }
 
 
@@ -456,7 +454,6 @@ router.get("/filter", async (req, res) => {
     }
 
 });
-
 
 
 
