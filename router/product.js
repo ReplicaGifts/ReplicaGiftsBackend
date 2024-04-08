@@ -38,14 +38,14 @@ router.post("/add-product", up, async (req, res) => {
             return res.status(404).send({ success: false, message: 'Product images not found ' })
         }
         // const image = await Promise.all(uploadToS3(req.files['image'][0]));
-        const image = `https://${req.get('host')}/${req.files['image'][0].filename}`;
+        const image = `https://replicagiftsbackend.onrender.com/${req.files['image'][0].filename}`;
 
         let frame = '';
 
         if ('frame' in req.files) {
             // frame = await Promise.all(uploadToS3(req.files['frame'][0]));
 
-            frame = `https://${req.get('host')}/${req.files['frame'][0].filename}`;
+            frame = `https://replicagiftsbackend.onrender.com/${req.files['frame'][0].filename}`;
         }
 
         const product = new Product({
