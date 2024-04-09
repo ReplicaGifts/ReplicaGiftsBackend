@@ -104,7 +104,7 @@ router.put("/update/:id", upload.single("thumbnail"), async (req, res) => {
         category.categoryName = categoryName;
         category.thumbnail = thumbnail;
         category.frame = frame;
-
+category.save();
         res.send({ success: true, message: "category updated succesfully", category });
 
     } catch (error) {
