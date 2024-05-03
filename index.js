@@ -17,6 +17,7 @@ const giftsRouter = require('./router/gifts');
 const trackRouter = require('./router/trackMore');
 const guestRouter = require('./router/guest');
 const mailRouter = require('./router/mail');
+const chart = require('./router/chart');
 
 
 const app = express();
@@ -49,6 +50,7 @@ app.use("/api/gifts", giftsRouter);
 app.use("/api/trackmore", trackRouter);
 app.use("/api/guest", guestRouter);
 app.use("/api/mail", mailRouter);
+app.use("/api/chart", chart);
 
 
 mongoose.connect(process.env.MONGOOS_KEY).then(() => {
