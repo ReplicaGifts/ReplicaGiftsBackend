@@ -138,38 +138,59 @@ router.get("/get-frame/:id", async function (req, res) {
 
 
 router.get("/orders", adminAuth, async (req, res) => {
-    try {
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 30;
+    const status = req.query.status || 'recent';
 
+    const statusOptions = ['recent', 'viewed', 'succeeded'];
+
+    try {
         await FrameDetail.updateMany(
             { status: true },
             { $set: { notify: true } }
         );
 
+        let filter = { status: true };
+        if (status === statusOptions[0]) {
+            filter.isViewed = false;
+        } else if (status === statusOptions[1]) {
+            filter.isViewed = true;
+            filter.deliveryStatus = { $ne: 'Delivered' };
+        } else if (status === statusOptions[2]) {
+            filter.deliveryStatus = 'Delivered';
+        }
 
-        const orders = await FrameDetail.find({ status: true }).populate({
-            path: 'user',
-            select: '-password'
-        }).populate({
-            path: 'product',
-        }).populate({
-            path: 'gifts',
-            populate: {
-                path: 'gift'
-            }
-        }).sort({ chreatedAt: -1 })
+        const orders = await FrameDetail.find(filter)
+            .populate({
+                path: 'user',
+                select: '-password'
+            })
+            .populate({
+                path: 'product',
+            })
+            .populate({
+                path: 'gifts',
+                populate: {
+                    path: 'gift'
+                }
+            })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ chreatedAt: -1 });
 
-        // Split the orders array into two arrays
-        const recentlyAdded = orders.filter(ord => !ord.isViewed); // Get the first 4 elements or less
-        const remainingOrders = orders.filter(ord => ord.isViewed && ord.deliveryStatus !== 'Delivered');
-        const delivered = orders.filter(ord => ord.deliveryStatus === 'Delivered');
 
-        res.send({ recentlyAdded, remainingOrders, delivered });
+        const count = await FrameDetail.countDocuments(filter);
 
+
+        res.send({ orders, count });
+
+        // Return the paginatedRecentlyAdded, remainingOrders, and delivered arrays
     } catch (error) {
+        // Handle error
 
-        res.status(500).send({ error: error.message, success: false });
-
+        res.status(500).send({ error: error.message });
     }
+
 });
 
 router.get('/notify', async function (req, res) {
