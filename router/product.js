@@ -310,6 +310,29 @@ router.get("/all", async (req, res) => {
 });
 
 
+router.get("/page", async (req, res) => {
+
+    try {
+
+        const limit = req.query.limit || 30;
+        const page = req.query.page || 1;
+
+
+        const product = await Product.find().populate('category')
+            .sort({ chreatedAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+
+        const totalProduct = await Product.countDocuments();
+        res.send({ product, totalProduct });
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+
+});
+
+
 router.get("/category/:categoryId", async (req, res) => {
     const category = req.params.categoryId; // Use req.params instead of req.query
     try {

@@ -163,7 +163,7 @@ router.get("/orders", adminAuth, async (req, res) => {
         const remainingOrders = orders.filter(ord => ord.isViewed && ord.deliveryStatus !== 'Delivered');
         const delivered = orders.filter(ord => ord.deliveryStatus === 'Delivered');
 
-        res.send({ recentlyAdded, remainingOrders, delivered, orders });
+        res.send({ recentlyAdded, remainingOrders, delivered });
 
     } catch (error) {
 
@@ -352,6 +352,36 @@ router.delete('/delete/:id', async (req, res) => {
 
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });
+    }
+});
+
+router.get('/filter', async (req, res) => {
+    try {
+        const limit = req.query.limit || 30;
+        const page = req.query.page || 1;
+
+        const orders = await FrameDetail.find({ status: true }).populate({
+            path: 'user',
+            select: '-password'
+        }).populate({
+            path: 'product',
+        }).populate({
+            path: 'gifts',
+            populate: {
+                path: 'gift'
+            }
+        }).sort({ chreatedAt: -1 }).skip((page - 1) * limit).limit(limit);
+
+        const totalOrder = await FrameDetail.countDocuments({ status: true });
+
+        res.send({ currentPage: page, orders, totalOrder, skipped: limit * page, limit });
+
+
+
+    } catch (error) {
+
+        res.status(500).send({ error });
+
     }
 });
 

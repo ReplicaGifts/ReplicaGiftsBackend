@@ -196,12 +196,37 @@ router.get('/contact', async (req, res) => {
 
         await Contact.updateMany({ notify: true });
 
-        const contact = await Contact.find().sort({ chreatedAt: -1 })
+        const contact = await Contact.find().sort({ chreatedAt: -1 });
 
         const recentlyAdded = contact.filter(contact => !contact.isViewed);
         const viewed = contact.filter(contact => contact.isViewed);
 
         res.send({ recentlyAdded, viewed, contact });
+    } catch (e) {
+
+        res.status(500).send({ success: false, error: e.message });
+    }
+});
+
+
+router.get('/contact/filter', async (req, res) => {
+
+    try {
+
+        await Contact.updateMany({ notify: true });
+
+        const limit = req.query.limit || 30;
+        const page = req.query.page || 1;
+
+        const contact = await Contact.find().sort({ chreatedAt: -1 })
+            .sort({ chreatedAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+
+        const totalContact = await Contact.countDocuments();
+
+        res.send({ contact, totalContact });
     } catch (e) {
 
         res.status(500).send({ success: false, error: e.message });
