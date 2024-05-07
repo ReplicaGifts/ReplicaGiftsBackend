@@ -168,6 +168,27 @@ router.get("/me", adminAuth, async (req, res) => {
 });
 
 
+router.post('/contact', async (req, res) => {
+
+
+    const { name, email, subject, message, phone } = req.body;
+
+    try {
+
+        const contact = new Contact({
+            name, email, subject, message, phone
+        })
+
+
+        contact.save();
+
+        res.send({ success: true, message: 'contact successfully' });
+
+    } catch (e) {
+        res.status(500).send({ error: e.message, success });
+    }
+});
+
 
 router.get('/contact', async (req, res) => {
 
