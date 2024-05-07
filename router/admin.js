@@ -168,65 +168,35 @@ router.get("/me", adminAuth, async (req, res) => {
 });
 
 
-router.post('/contact', async (req, res) => {
-
-
-    const { name, email, subject, message, phone } = req.body;
-
-    try {
-
-        const contact = new Contact({
-            name, email, subject, message, phone
-        })
-
-
-        contact.save();
-
-        res.send({ success: true, message: 'contact successfully' });
-
-    } catch (e) {
-        res.status(500).send({ error: e.message, success });
-    }
-});
-
 
 router.get('/contact', async (req, res) => {
 
-    try {
+    const page = req.query.page;
+    const limit = req.query.limit;
+    const status = req.query.status;
 
-        await Contact.updateMany({ notify: true });
-
-        const contact = await Contact.find().sort({ chreatedAt: -1 });
-
-        const recentlyAdded = contact.filter(contact => !contact.isViewed);
-        const viewed = contact.filter(contact => contact.isViewed);
-
-        res.send({ recentlyAdded, viewed, contact });
-    } catch (e) {
-
-        res.status(500).send({ success: false, error: e.message });
-    }
-});
-
-
-router.get('/contact/filter', async (req, res) => {
+    const statusOptions = ['recent', 'viewed'];
 
     try {
 
         await Contact.updateMany({ notify: true });
 
-        const limit = req.query.limit || 30;
-        const page = req.query.page || 1;
+        const filter = { isViewed: true };
 
-        const contact = await Contact.find().sort({ chreatedAt: -1 })
-            .sort({ chreatedAt: -1 })
+        if (status.toLowerCase() === statusOptions[0]) {
+            filter.isViewed = false;
+        }
+
+        const contact = await Contact.find(filter)
             .skip((page - 1) * limit)
-            .limit(limit);
+            .limit(limit)
+            .sort({ chreatedAt: -1 });
 
 
-        const totalContact = await Contact.countDocuments();
+        const count = await Contact.countDocuments(filter);
 
-        res.send({ contact, totalContact });
+        res.send({ contact, count });
+
     } catch (e) {
 
         res.status(500).send({ success: false, error: e.message });
